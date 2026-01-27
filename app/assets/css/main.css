@@ -1,2 +1,6 @@
 @import "tailwindcss";
 @import '@shuriken-ui/nuxt';
+
+body{
+    background-color: #f5f5f5;
+}

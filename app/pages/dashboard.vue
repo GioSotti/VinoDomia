@@ -7,9 +7,44 @@ const unpayedBillsAmount = ref(153);
 const tarifsUpdated = ref(31);
 const ordersAmount = ref(20);
 
-const bills = ref([{
-
-}]);
+const ongoingActivities = ref([{
+  id: 0,
+  name: "test",
+  remainingBills: 0,
+  fileName: "SCEA Château Montfin",
+  date: new Date("DD-MM-YYYY"),
+}, {
+  id: 1,
+  name: "test",
+  remainingBills: 0,
+  fileName: "SCEA Château Montfin",
+  date: new Date("DD-MM-YYYY"),
+}, {
+  id: 2,
+  name: "test",
+  remainingBills: 0,
+  fileName: "SCEA Château Montfin",
+  date: new Date("DD-MM-YYYY"),
+}, {
+  id: 3,
+  name: "test",
+  remainingBills: 0,
+  fileName: "SCEA Château Montfin",
+  date: new Date("DD-MM-YYYY"),
+}, {
+  id: 4,
+  name: "test",
+  remainingBills: 0,
+  fileName: "SCEA Château Montfin",
+  date: new Date("DD-MM-YYYY"),
+}, {
+  id: 5,
+  name: "test",
+  remainingBills: 0,
+  fileName: "SCEA Château Montfin",
+  date: new Date("DD-MM-YYYY"),
+},
+]);
 </script>
 
 <template>
@@ -20,7 +55,7 @@ const bills = ref([{
       <!-- Page content -->
       <div class="flex flex-col w-full p-8 gap-10">
         <!-- First content top row -->
-        <div class="flex flex-row flex-wrap w-full text-black font-bold text-3xl items-center justify-between">
+        <div class="flex flex-row flex-wrap w-full text-black font-bold text-3xl items-center justify-between gap-2">
           <h1>Dossier : {{ name }}</h1>
           <div class="flex flex-row gap-2">
             <BaseButton size="md" variant="none" class="border border-black">
@@ -33,7 +68,7 @@ const bills = ref([{
         </div>
         <!-- Cards -->
         <div class="flex flex-col gap-5">
-          <div class="flex flex-row gap-6">
+          <div class="flex flex-col xl:flex-row gap-6">
             <BaseCard variant="none" rounded="md"
                       class=" bg-red-500 border border-red-800 flex flex-col w-full gap-2">
               <div class="py-3 px-4">
@@ -89,9 +124,25 @@ const bills = ref([{
               </div>
             </BaseCard>
           </div>
-          <BaseCard variant="none" rounded="md" class="p-4 bg-white border border-gray-300/30">
-            <h2 class="text-black text-xl font-bold">Actions courantes récentes</h2>
-
+          <!-- Ongoing activities-->
+          <BaseCard variant="none" rounded="md" class="px-5 py-4 bg-white border border-gray-300/50 flex flex-col w-full gap-2">
+            <h2 class="text-black text-xl font-bold pb-6">Actions courantes récentes</h2>
+            <div v-for="(activity, key) in ongoingActivities" :key="key" class="flex flex-col w-full gap-3">
+              <div class="flex flex-row w-full gap-2 items-center justify-between">
+                <div class="flex flex-row items-center gap-2">
+                  <BaseIconBox rounded="full" variant="none" class="bg-gray-300" size="sm">
+                    <Icon name="solar:file-bold" class="size-6 bg-gray-500"/>
+                  </BaseIconBox>
+                  <div class="flex flex-col">
+                    <h3 class="text-black font-semibold">{{ activity.name }}</h3>
+                    <h4 class="text-gray-500">{{ activity.remainingBills }} + actions</h4>
+                  </div>
+                </div>
+                <h3 class="text-black font-semibold">{{ activity.fileName }}</h3>
+                <h4 class="text-gray-500">{{activity.date}}</h4>
+              </div>
+              <div class="w-full h-px bg-gray-300" :class="{ 'hidden': key === ongoingActivities.length-1, 'block' : key !== ongoingActivities.length-1 }"></div>
+            </div>
           </BaseCard>
         </div>
       </div>

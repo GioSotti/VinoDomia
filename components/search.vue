@@ -1,3 +1,9 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const value = ref('')
+</script>
+
 <template>
   <div class="search-container">
     <BaseInput
@@ -42,22 +48,14 @@
   width: 20px;
   height: 20px;
 }
-</style>
 
-
-<script setup lang="ts">
-import { ref } from 'vue'
-
-const value = ref('')
-</script>
-
-<style scoped>
 .search-container {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 8px 16px;
   background-color: white;
+  border-bottom: 3px solid rgba(0, 0, 0, 0.1);
 }
 
 .search-input {

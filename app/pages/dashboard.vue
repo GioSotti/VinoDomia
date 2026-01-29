@@ -70,7 +70,7 @@ const ongoingActivities = ref([{
         <div class="flex flex-col gap-5">
           <div class="flex flex-col xl:flex-row gap-6">
             <BaseCard variant="none" rounded="md"
-                      class=" bg-red-500 border border-red-800 flex flex-col w-full gap-2">
+                      class=" bg-red-500 border border-red-800 flex flex-col w-full gap-2 text-white">
               <div class="py-3 px-4">
                 <!-- First row BaseCard content -->
                 <div class="flex flex-row w-full gap-6 justify-between items-center">
@@ -125,25 +125,28 @@ const ongoingActivities = ref([{
             </BaseCard>
           </div>
           <!-- Ongoing activities-->
-          <BaseCard variant="none" rounded="md" class="px-5 py-4 bg-white border border-gray-300/50 flex flex-col w-full gap-2">
-            <h2 class="text-black text-xl font-bold pb-6">Actions courantes récentes</h2>
-            <div v-for="(activity, key) in ongoingActivities" :key="key" class="flex flex-col w-full gap-3">
-              <div class="flex flex-row w-full gap-2 items-center justify-between">
-                <div class="flex flex-row items-center gap-2">
-                  <BaseIconBox rounded="full" variant="none" class="bg-gray-300" size="sm">
-                    <Icon name="solar:file-bold" class="size-6 bg-gray-500"/>
-                  </BaseIconBox>
-                  <div class="flex flex-col">
-                    <h3 class="text-black font-semibold">{{ activity.name }}</h3>
-                    <h4 class="text-gray-500">{{ activity.remainingBills }} + actions</h4>
+          <BaseCard variant="none" rounded="md" class="px-5 py-4 bg-white border border-gray-300/50 flex flex-col w-full h-96 gap-2">
+            <h2 class="text-black text-xl font-bold pb-6 shrink-0">Actions courantes récentes</h2>
+            <div class="flex flex-col w-full gap-3 overflow-y-scroll flex-1">
+              <div v-for="(activity, key) in ongoingActivities" :key="key" class="flex flex-col w-full gap-3">
+                <div class="flex flex-row w-full gap-2 items-center justify-between">
+                  <div class="flex flex-row items-center gap-2">
+                    <BaseIconBox rounded="full" variant="none" class="bg-gray-300" size="sm">
+                      <Icon name="solar:file-bold" class="size-6 bg-gray-500"/>
+                    </BaseIconBox>
+                    <div class="flex flex-col">
+                      <h3 class="text-black font-semibold">{{ activity.name }}</h3>
+                      <h4 class="text-gray-500">{{ activity.remainingBills }} + actions</h4>
+                    </div>
                   </div>
+                  <h3 class="text-black font-semibold">{{ activity.fileName }}</h3>
+                  <h4 class="text-gray-500">{{activity.date}}</h4>
                 </div>
-                <h3 class="text-black font-semibold">{{ activity.fileName }}</h3>
-                <h4 class="text-gray-500">{{activity.date}}</h4>
+                <div class="w-full h-px bg-gray-300" :class="{ 'hidden': key === ongoingActivities.length-1, 'block' : key !== ongoingActivities.length-1 }"></div>
               </div>
-              <div class="w-full h-px bg-gray-300" :class="{ 'hidden': key === ongoingActivities.length-1, 'block' : key !== ongoingActivities.length-1 }"></div>
             </div>
           </BaseCard>
+
         </div>
       </div>
     </div>

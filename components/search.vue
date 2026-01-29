@@ -6,9 +6,6 @@
         placeholder="Rechercher"
         class="search-input"
     >
-      <template #prefix>
-        <SearchIcon class="search-icon" />
-      </template>
     </BaseInput>
 
     <div class="action-buttons">
@@ -58,11 +55,13 @@ const value = ref('')
   gap: 12px;
   padding: 8px 16px;
   background-color: white;
+  width: 100%;
 }
 
 .search-input {
   flex: 1;
   max-width: 600px;
+  position: relative;
 }
 
 .search-input :deep(input) {
@@ -85,7 +84,6 @@ const value = ref('')
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-left: auto;
 }
 
 .icon-button {

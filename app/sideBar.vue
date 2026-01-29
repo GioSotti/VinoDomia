@@ -52,10 +52,10 @@ defineProps<{
            :class="{ 'bg-[#323f4f]': focusPage === key, 'bg-transparent': focusPage !== key }">
         <Icon :name="link.icon" class="h-6 w-6"
               :class="{ 'text-white': focusPage === key, 'text-[#7c8491]': focusPage !== key }"/>
-        <NuxtPage :to="link.href"
+        <NuxtLink :to="link.href"
                   :class="{ 'text-white': focusPage === key, 'text-[#7c8491]': focusPage !== key }">
           {{ link.title }}
-        </NuxtPage>
+        </NuxtLink>
       </div>
     </nav>
   </div>

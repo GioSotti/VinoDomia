@@ -1,20 +1,30 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import {ref} from 'vue'
 
 const value = ref('')
+
+const props = defineProps<{
+  isBurgerMenu: boolean
+}>()
+
+const emit = defineEmits<{ (e: 'update:isBurgerMenu', v: boolean): void }>()
+
+function toggleBurger() {
+  emit('update:isBurgerMenu', !props.isBurgerMenu)
+}
 </script>
 
 <template>
-  <div class="search-container">
+  <div class="search-container transition-transform duration-300 ease-in-out">
+    <BaseButton size="icon-md" rounded="md" @click="toggleBurger">
+      <Icon name="material-symbols:menu-rounded" class="size-4"/>
+    </BaseButton>
     <BaseInput
         v-model="value"
         rounded="md"
         placeholder="Rechercher"
         class="search-input"
     >
-      <template #prefix>
-        <SearchIcon class="search-icon" />
-      </template>
     </BaseInput>
 
     <div class="action-buttons">
@@ -33,7 +43,7 @@ const value = ref('')
             class="user-icon"
         />
       </button>
-      <span class ="user-badge"></span>
+      <span class="user-badge"></span>
     </div>
   </div>
 </template>
@@ -44,7 +54,7 @@ const value = ref('')
   height: 20px;
 }
 
-.user-icon{
+.user-icon {
   width: 20px;
   height: 20px;
 }

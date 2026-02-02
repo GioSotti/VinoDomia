@@ -15,7 +15,7 @@ function toggleBurger() {
 </script>
 
 <template>
-  <div class="search-container transition-transform duration-300 ease-in-out">
+  <div class="search-container">
     <BaseButton size="icon-md" rounded="md" @click="toggleBurger">
       <Icon name="material-symbols:menu-rounded" class="size-4"/>
     </BaseButton>

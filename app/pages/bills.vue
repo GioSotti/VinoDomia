@@ -35,6 +35,15 @@ const bills = ref([
     status: "En retard",
     checked: false,
   },
+  {
+    id: 3,
+    number: "INV-004",
+    client: "Client D",
+    date: "15-01-2024",
+    amount: "$450",
+    status: "En avance",
+    checked: false,
+  },
 ]);
 const allBills = ref(false);
 

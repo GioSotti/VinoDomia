@@ -94,17 +94,15 @@ const isSameBurgerPage = computed(() => {
 <template>
   <div class="flex flex-row">
     <div id="sideBar"
-         class="overflow-y-auto z-20 flex flex-col bg-[#182130] min-h-screen pt-10 pl-4 pr-5 shrink-0 border border-r-gray-600">
-      <div class="flex flex-row items-center gap-5 w-full pb-10">
-        <img src="https://placehold.co/40x40" alt="logo VinoDomia"/>
-      </div>
+         class="overflow-y-auto z-20 flex flex-col bg-[#182130] min-h-screen pt-10 pl-4 pr-5 shrink-0 border border-r-gray-600 items-center gap-10">
+        <img src="https://placehold.co/40x40" alt="logo VinoDomia" class="w-fit h-fit"/>
 
       <nav class="flex flex-col w-full gap-1">
         <div v-for="(link, key) in links" :key="key"
              class="flex flex-row items-center p-3 rounded-lg cursor-pointer gap-2"
              :class="{ 'bg-[#323f4f]': focusPage === key, 'bg-red-600' : focusPage !== key && focusPageModification === key,'bg-transparent': focusPage !== key}">
-          <BaseButton @click="changeFocusPage(key)">
-            <Icon :name="link.icon" class="h-6 w-6"/>
+          <BaseButton @click="changeFocusPage(key)" size="md">
+            <Icon :name="link.icon" class="size-6"/>
           </BaseButton>
         </div>
       </nav>

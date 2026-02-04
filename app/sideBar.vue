@@ -13,7 +13,7 @@ const links = ref([{
     },
     {
       title: "Clients",
-      href: "#",
+      href: "/clients",
       icon: "solar:home-smile-angle-linear"
     },
     {

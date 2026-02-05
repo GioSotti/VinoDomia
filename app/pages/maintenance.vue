@@ -114,7 +114,7 @@ const versions = [
                       <div class="flex flex-col">
                         <h3 class="text-black font-semibold">{{ user.name }}</h3>
                         <h4 class="text-gray-500">
-                          {{ user.postCode + ", " + user.city + ", " + user.subdivition + ", " + user.country }}</h4>
+                          {{ user.postCode + ", " + user.city + ", " + user.subdivision + ", " + user.country }}</h4>
                       </div>
                     </div>
                     <div class="flex flex-row gap-4 items-center">

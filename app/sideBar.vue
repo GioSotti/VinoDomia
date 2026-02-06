@@ -53,11 +53,19 @@ const links = ref([{
   {
     title: "Maintenance",
     href: "#",
-    icon: "solar:home-smile-angle-linear"
+    icon: "solar:home-smile-angle-linear",
+    children: [
+      {
+        title: "Paramètres",
+        href: "/maintenance",
+        icon: "solar:home-smile-angle-linear"
+      }
+    ]
   },
 ])
 const props = defineProps<{
-  focusPage: number,
+  focusPage?: number,
+  focusUnderPage?: number,
   isBurgerMenu: Boolean
 }>()
 
@@ -82,7 +90,6 @@ const changeFocusPage = (index: number) => {
   if (props.isBurgerMenu) {
     toggleBurger();
   }
-  console.log(children.value);
 }
 
 const isSameBurgerPage = computed(() => {
@@ -95,7 +102,9 @@ const isSameBurgerPage = computed(() => {
   <div class="flex flex-row">
     <div id="sideBar"
          class="overflow-y-auto z-20 flex flex-col bg-[#182130] min-h-screen pt-10 pl-4 pr-5 shrink-0 border border-transparent border-r-gray-600 items-center gap-10">
+      <NuxtLink to="/dashboard">
         <img src="https://placehold.co/40x40" alt="logo VinoDomia" class="w-fit h-fit"/>
+      </NuxtLink>
 
       <nav class="flex flex-col w-full gap-1">
         <div v-for="(link, key) in links" :key="key"
@@ -114,13 +123,13 @@ const isSameBurgerPage = computed(() => {
         <h1 class="text-white font-bold text-xl">{{ title }}</h1>
       </div>
       <nav class="flex flex-col w-full gap-1">
-        <div v-for="(link, key) in children" :key="key"
+        <div v-for="(link, childKey) in children" :key="childKey"
              class="flex flex-row items-center p-3 rounded-lg cursor-pointer gap-2"
-             :class="{ 'bg-[#323f4f]': isSameBurgerPage && focusPage === key, 'bg-transparent': !isSameBurgerPage || focusPage !== key }">
+             :class="{ 'bg-[#323f4f]': isSameBurgerPage && focusUnderPage === childKey, 'bg-transparent': !isSameBurgerPage || focusUnderPage !== childKey }">
           <Icon :name="link.icon" class="h-6 w-6"
-                :class="{ 'text-white': isSameBurgerPage && focusPage === key, 'text-[#7c8491]': !isSameBurgerPage || focusPage !== key }"/>
+                :class="{ 'text-white': isSameBurgerPage && focusUnderPage === childKey, 'text-[#7c8491]': !isSameBurgerPage || focusUnderPage !== childKey }"/>
           <NuxtLink :to="link.href"
-                    :class="{ 'text-white': isSameBurgerPage && focusPage === key, 'text-[#7c8491]': !isSameBurgerPage || focusPage !== key }">
+                    :class="{ 'text-white': isSameBurgerPage && focusUnderPage === childKey, 'text-[#7c8491]': !isSameBurgerPage || focusUnderPage !== childKey }">
             {{ link.title }}
           </NuxtLink>
         </div>

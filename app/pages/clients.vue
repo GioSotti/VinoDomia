@@ -117,10 +117,6 @@ const modalCreationClient = ref(false);
 
 const value = ref("");
 
-const fields = reactive({
-  first: modalClientDetails.value.civility,
-})
-
 const openModal = (client: {
   id: number;
   name: string;
@@ -169,7 +165,7 @@ const saveClient = () => {
 </script>
 
 <template>
-  <Overlay :focus-page="0">
+  <Overlay :focus-page="0" :focus-under-page="1">
     <div class="flex flex-col w-full p-8 gap-5 h-full">
       <h1 class="text-black font-bold text-3xl">Clients enregistrés</h1>
       <BaseCard variant="none" rounded="md"
@@ -229,17 +225,17 @@ const saveClient = () => {
           <div class="flex flex-row w-full gap-2 items-center">
             <div class="flex flex-col w-fit">
               <label for="civility">Civilité :</label>
-                <BaseSelect v-model="modalClientDetails.civility" placeholder="Select a value...">
-                  <BaseSelectItem value="M.">
-                    Monsieur
-                  </BaseSelectItem>
-                  <BaseSelectItem value="Mme.">
-                    Madame
-                  </BaseSelectItem>
-                  <BaseSelectItem value="Autre">
-                    Autre
-                  </BaseSelectItem>
-                </BaseSelect>
+              <BaseSelect v-model="modalClientDetails.civility" placeholder="Select a value...">
+                <BaseSelectItem value="M.">
+                  Monsieur
+                </BaseSelectItem>
+                <BaseSelectItem value="Mme.">
+                  Madame
+                </BaseSelectItem>
+                <BaseSelectItem value="Autre">
+                  Autre
+                </BaseSelectItem>
+              </BaseSelect>
             </div>
             <div class="flex flex-col w-full">
               <label for="fullName">Nom Complet :</label>

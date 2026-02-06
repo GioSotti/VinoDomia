@@ -152,6 +152,20 @@ const closeModal = () => {
     country: "",
   };
 }
+
+const deleteClient = (clientId: number) => {
+  users.value = users.value.filter(client => client.id !== clientId);
+}
+
+const saveClient = () => {
+  const existingClientIndex = users.value.findIndex(client => client.id === modalClientDetails.value.id);
+  if (existingClientIndex !== -1) {
+    users.value[existingClientIndex] = {...modalClientDetails.value};
+  } else {
+    users.value.push({...modalClientDetails.value});
+  }
+  closeModal();
+}
 </script>
 
 <template>
@@ -197,7 +211,7 @@ const closeModal = () => {
                 <BaseButton @click="openModal(user)">
                   <Icon name="ic:baseline-edit" class="size-5"/>
                 </BaseButton>
-                <BaseButton>
+                <BaseButton @click="deleteClient(user.id)">
                   <Icon name="ic:round-delete" class="size-5 bg-red-500"/>
                 </BaseButton>
               </div>
@@ -208,57 +222,62 @@ const closeModal = () => {
         </div>
       </BaseCard>
     </div>
-    <Modal :is-visible="modalCreationClient" @close-modal="closeModal">
+    <Modal :is-visible="modalCreationClient" @close-modal="closeModal" @save-modal="saveClient">
       <div class="flex flex-col w-full h-140 gap-4 overflow-auto px-4 py-2">
         <h2 class="text-black font-bold text-2xl mb-4">Créer un nouveau client</h2>
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4 text-black">
           <div class="flex flex-row w-full gap-2 items-center">
             <div class="flex flex-col w-fit">
               <label for="civility">Civilité :</label>
-              <BaseAutocomplete variant="default" label="Civilité" id="civility" rounded="md" v-model="fields.first">
-                <BaseAutocompleteItem value="M.">M.</BaseAutocompleteItem>
-                <BaseAutocompleteItem value="Mme.">Mme.</BaseAutocompleteItem>
-                <BaseAutocompleteItem value="Mlle.">Mlle.</BaseAutocompleteItem>
-                <BaseAutocompleteItem value="Mme.">Autre</BaseAutocompleteItem>
-              </BaseAutocomplete>
+                <BaseSelect v-model="modalClientDetails.civility" placeholder="Select a value...">
+                  <BaseSelectItem value="M.">
+                    Monsieur
+                  </BaseSelectItem>
+                  <BaseSelectItem value="Mme.">
+                    Madame
+                  </BaseSelectItem>
+                  <BaseSelectItem value="Autre">
+                    Autre
+                  </BaseSelectItem>
+                </BaseSelect>
             </div>
             <div class="flex flex-col w-full">
               <label for="fullName">Nom Complet :</label>
-              <BaseInput placeholder="Jean Durand" rounded="md" id="fullName" :modelValue="modalClientDetails.name"/>
+              <BaseInput placeholder="Jean Durand" rounded="md" id="fullName" v-model="modalClientDetails.name"/>
             </div>
           </div>
           <div class="flex flex-row w-full gap-2 items-center">
             <div class="flex flex-col w-full gap-2">
               <label for="phone1">Téléphone 1 :</label>
-              <BaseInput placeholder="01 23 45 67 89" rounded="md" id="phone1" :modelValue="modalClientDetails.phone1"/>
+              <BaseInput placeholder="01 23 45 67 89" rounded="md" id="phone1" v-model="modalClientDetails.phone1"/>
             </div>
             <div class="flex flex-col w-full gap-2">
               <label for="phone2">Téléphone 2 :</label>
-              <BaseInput placeholder="98 76 54 32 10" rounded="md" id="phone2" :modelValue="modalClientDetails.phone2"/>
+              <BaseInput placeholder="98 76 54 32 10" rounded="md" id="phone2" v-model="modalClientDetails.phone2"/>
             </div>
           </div>
           <label for="email">Email :</label>
-          <BaseInput placeholder="Email" rounded="md" id="email" :modelValue="modalClientDetails.email"/>
+          <BaseInput placeholder="Email" rounded="md" id="email" v-model="modalClientDetails.email"/>
           <div class="flex flex-row w-full gap-2 items-center">
             <div class="flex flex-col gap-2">
               <label for="postalCode">Code Postal :</label>
               <BaseInput placeholder="Code Postal" rounded="md" id="postalCode"
-                         :modelValue="modalClientDetails.postCode"/>
+                         v-model="modalClientDetails.postCode"/>
             </div>
             <div class="flex flex-col w-full gap-2">
               <label for="city">Ville :</label>
-              <BaseInput placeholder="Ville" rounded="md" id="city" :modelValue="modalClientDetails.city"/>
+              <BaseInput placeholder="Ville" rounded="md" id="city" v-model="modalClientDetails.city"/>
             </div>
           </div>
           <div class="flex flex-row w-full gap-2">
             <div class="flex flex-col gap-2 w-fit">
               <label for="subdivision">Subdivision :</label>
               <BaseInput placeholder="Région/Subdivision" rounded="md" id="subdivision"
-                         :modelValue="modalClientDetails.subdivision"/>
+                         v-model="modalClientDetails.subdivision"/>
             </div>
             <div class="flex flex-col gap-2 w-full">
               <label for="country">Pays :</label>
-              <BaseInput placeholder="Pays" rounded="md" id="country" :modelValue="modalClientDetails.country"/>
+              <BaseInput placeholder="Pays" rounded="md" id="country" v-model="modalClientDetails.country"/>
             </div>
           </div>
         </div>

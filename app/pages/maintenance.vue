@@ -69,7 +69,7 @@ const versions = [
 </script>
 
 <template>
-  <Overlay :focus-page="3">
+  <Overlay :focus-page="3" :focus-under-page="0">
     <div>
       <div class="flex flex-col w-full p-8 gap-2 h-full">
         <div class="flex flex-row flex-wrap w-full text-black font-bold text-3xl items-center justify-between gap-2">

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineEmits(['close-modal']);
+defineEmits(['close-modal', 'save-modal']);
 defineProps<{
   isVisible: Boolean,
 }>();
@@ -11,7 +11,7 @@ defineProps<{
       <div class="bg-white rounded-lg shadow-lg p-6 w-1/2">
         <slot></slot>
         <div class="flex gap-4 mt-6 ">
-          <BaseButton variant="primary" rounded="lg" class="w-full">Save</BaseButton>
+          <BaseButton variant="primary" @click="$emit('save-modal')" rounded="lg" class="w-full">Save</BaseButton>
           <BaseButton variant="default" @click="$emit('close-modal')" rounded="lg" class="w-full">Cancel</BaseButton>
         </div>
       </div>

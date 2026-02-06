@@ -94,7 +94,7 @@ const isSameBurgerPage = computed(() => {
 <template>
   <div class="flex flex-row">
     <div id="sideBar"
-         class="overflow-y-auto z-20 flex flex-col bg-[#182130] min-h-screen pt-10 pl-4 pr-5 shrink-0 border border-r-gray-600 items-center gap-10">
+         class="overflow-y-auto z-20 flex flex-col bg-[#182130] min-h-screen pt-10 pl-4 pr-5 shrink-0 border border-transparent border-r-gray-600 items-center gap-10">
         <img src="https://placehold.co/40x40" alt="logo VinoDomia" class="w-fit h-fit"/>
 
       <nav class="flex flex-col w-full gap-1">

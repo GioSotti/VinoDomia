@@ -222,9 +222,6 @@ const fields = reactive({
                   v-model="product.bio"
               />
               <div class="flex gap-2">
-                <BaseButton size="sm" variant="default">
-                  <Icon name="ic:baseline-print" class="size-4"/>
-                </BaseButton>
                 <BaseButton size="sm" variant="primary" @click.stop="openModal(product)">
                   <Icon name="ic:baseline-edit" class="size-4"/>
                 </BaseButton>
@@ -243,28 +240,29 @@ const fields = reactive({
               <div class="flex flex-row w-full gap-2 items-center">
                 <div class="flex flex-col w-full">
                   <label for="reference">Référence :</label>
-                  <BaseInput placeholder="Jean Durand" rounded="md" id="reference"
+                  <BaseInput placeholder="PROD000" rounded="md" id="reference"
                              v-model="modalProductsDetails.reference"/>
                 </div>
               </div>
               <div class="flex flex-row w-full gap-2 items-center">
                 <div class="flex flex-col w-full gap-2">
                   <label for="family">Famille :</label>
-                  <BaseInput placeholder="01 23 45 67 89" rounded="md" id="family"
+                  <BaseInput placeholder="VIN" rounded="md" id="family"
                              v-model="modalProductsDetails.family"/>
                 </div>
                 <div class="flex flex-col w-full gap-2">
                   <label for="suppliers">Fournisseur :</label>
-                  <BaseInput placeholder="98 76 54 32 10" rounded="md" id="suppliers"
+                  <BaseInput placeholder="INTERNE" rounded="md" id="suppliers"
                              v-model="modalProductsDetails.suppliers"/>
                 </div>
               </div>
               <label for="designation">Désignation :</label>
-              <BaseInput placeholder="Email" rounded="md" id="designation" v-model="modalProductsDetails.designation"/>
+              <BaseInput placeholder="CHATEAU MONTFIN" rounded="md" id="designation"
+                         v-model="modalProductsDetails.designation"/>
               <div class="flex flex-row w-full gap-2 items-center">
                 <div class="flex flex-col gap-2 w-full">
-                  <label for="postalCode">Prix HT (€) :</label>
-                  <BaseInputNumber placeholder="10" rounded="md" id="postalCode"
+                  <label for="priceWithoutTax">Prix HT (€) :</label>
+                  <BaseInputNumber placeholder="10" rounded="md" id="priceWithoutTax"
                                    v-model="modalProductsDetails.priceWithoutTax"/>
                 </div>
                 <div class="flex flex-col w-full gap-2">
@@ -274,14 +272,14 @@ const fields = reactive({
                 </div>
                 <div class="flex flex-col w-full gap-4 items-center">
                   <label for="totalPrice">Prix TTC (€) :</label>
-                  <h3 class="font-semibold">
+                  <h3 class="font-semibold" id="totalPrice">
                     {{ (modalProductsDetails.priceWithoutTax * (1 + modalProductsDetails.tva / 100)).toFixed(2) }}</h3>
                 </div>
               </div>
               <div class="flex flex-row w-full gap-2 justify-between">
                 <div class="flex flex-col gap-2 w-1/2">
-                  <label for="subdivision">Code Bar :</label>
-                  <BaseInput placeholder="Région/Subdivision" rounded="md" id="subdivision"
+                  <label for="barCode">Code Bar :</label>
+                  <BaseInput placeholder="0123456789" rounded="md" id="barCode"
                              v-model="modalProductsDetails.barCode"/>
                   <h3 class="libre-barcode-128-regular text-6xl text-center">
                     {{
@@ -289,8 +287,8 @@ const fields = reactive({
                     }}</h3>
                 </div>
                 <div class="flex flex-col gap-2 w-1/2">
-                  <label for="country">Code bar interne :</label>
-                  <BaseInput placeholder="Pays" rounded="md" id="country"
+                  <label for="internalBarCode">Code bar interne :</label>
+                  <BaseInput placeholder="9876543210" rounded="md" id="internalBarCode"
                              v-model="modalProductsDetails.internalBarCode"/>
                   <h3 class="libre-barcode-128-regular text-6xl text-center">
                     {{
@@ -300,6 +298,7 @@ const fields = reactive({
               </div>
             </div>
           </div>
+          <BaseButton class="w-full">Imprimer</BaseButton>
         </Modal>
       </BaseCard>
     </div>

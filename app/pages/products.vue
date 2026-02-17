@@ -107,7 +107,7 @@ const openModal = (product: {
   internalBarCode: string;
   tva: number;
 }) => {
-  modalProductsDetails.value = product;
+  modalProductsDetails.value = JSON.parse(JSON.stringify(product));
   modalCreationProduct.value = true;
 }
 

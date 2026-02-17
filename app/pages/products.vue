@@ -6,6 +6,7 @@ const modalCreationProduct = ref(false);
 const value = ref("");
 
 const modalProductsDetails = ref({
+  id: 0,
   reference: "",
   family: "",
   suppliers: "",
@@ -21,6 +22,7 @@ const modalProductsDetails = ref({
 
 const products = ref([
   {
+    id: 1,
     reference: "PROD001",
     family: "Vin AOC Corbieres Rouge",
     suppliers: "Domaine de la Dourbie",
@@ -34,6 +36,7 @@ const products = ref([
     tva: 20.0,
   },
   {
+    id: 2,
     reference: "PROD002",
     family: "Vin AOC Corbieres Rouge",
     suppliers: "Domaine de la Dourbie",
@@ -47,6 +50,7 @@ const products = ref([
     tva: 20.0,
   },
   {
+    id: 3,
     reference: "PROD003",
     family: "Vin AOC Corbieres Rouge",
     suppliers: "Domaine de la Dourbie",
@@ -60,6 +64,7 @@ const products = ref([
     tva: 20.0,
   },
   {
+    id: 4,
     reference: "PROD004",
     family: "Vin AOC Corbieres Rouge",
     suppliers: "Domaine de la Dourbie",
@@ -73,6 +78,7 @@ const products = ref([
     tva: 20.0,
   },
   {
+    id: 5,
     reference: "PROD005",
     family: "Vin AOC Corbieres Rouge",
     suppliers: "Domaine de la Dourbie",
@@ -88,6 +94,7 @@ const products = ref([
 ]);
 
 const openModal = (product: {
+  id: number;
   reference: string;
   family: string;
   suppliers: string;
@@ -107,6 +114,7 @@ const openModal = (product: {
 const closeModal = () => {
   modalCreationProduct.value = false;
   modalProductsDetails.value = {
+    id: 0,
     reference: "",
     family: "",
     suppliers: "",
@@ -121,12 +129,12 @@ const closeModal = () => {
   };
 }
 
-const deleteClient = (productReference: string) => {
-  products.value = products.value.filter(product => product.reference !== productReference);
+const deleteClient = (productId: number) => {
+  products.value = products.value.filter(product => product.id !== productId);
 }
 
 const saveProduct = () => {
-  const existingProductIndex = products.value.findIndex(product => product.reference === modalProductsDetails.value.reference);
+  const existingProductIndex = products.value.findIndex(product => product.id === modalProductsDetails.value.id);
   if (existingProductIndex !== -1) {
     products.value[existingProductIndex] = {...modalProductsDetails.value};
   } else {

@@ -1,5 +1,10 @@
 @import "tailwindcss";
 @import '@shuriken-ui/nuxt';
+@font-face {
+    font-family: LibreBarcode128-Regular;
+    src: url(../fonts/LibreBarcode128-Regular.ttf);
+    font-display: swap;
+}
 
 body{
     background-color: #F8FAFC;
@@ -7,6 +12,10 @@ body{
 
 html, body, #app {
     height: 100%;
+}
+
+.libre-barcode-128-regular {
+    font-family: 'LibreBarcode128-Regular', sans-serif;
 }
 
 @theme {

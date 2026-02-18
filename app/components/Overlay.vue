@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
-import Search from "../../components/search.vue";
-import SideBar from "../sideBar.vue";
+import Search from "./search.vue";
+import SideBar from "./sideBar.vue";
 
 let sideBarIsOpen = ref(true);
 

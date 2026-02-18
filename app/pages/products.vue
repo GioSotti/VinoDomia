@@ -156,11 +156,15 @@ const fields = reactive({
 
 <template>
   <Overlay :focus-page="0" :focus-under-page="3">
+    <!-- Page content -->
     <div class="flex flex-col w-full p-8 gap-5 h-full">
       <h1 class="text-black font-bold text-3xl">Produits</h1>
+      <!-- Search and filters -->
       <BaseCard variant="none" rounded="md"
                 class="px-5 py-4 bg-white border border-gray-300/50 flex flex-col w-full h-150 gap-2">
+        <!-- BaseCard Upper Part -->
         <div class="flex flex-row w-full gap-5 items-center mb-2">
+          <!-- Search Bar -->
           <BaseInput
               v-model="value"
               rounded="md"
@@ -178,6 +182,7 @@ const fields = reactive({
           </BaseButton>
         </div>
         <div class="flex flex-row w-full gap-4 items-center mb-6">
+          <!-- Filters -->
           <div class="flex flex-col w-full">
             <label for="family" class="font-semibold">Famille</label>
             <BaseAutocomplete placeholder="Ex: nom de la famille" v-model="fields.first" id="family">
@@ -196,7 +201,9 @@ const fields = reactive({
           </div>
         </div>
         <span class="w-full h-0.5 bg-gray-300 mb-5"></span>
+        <!-- BaseCard Lower Part -->
         <div class="flex flex-col w-full gap-3 overflow-y-auto flex-1">
+          <!-- Table Header -->
           <div
               class="grid grid-cols-[1fr_2fr_2fr_3fr_1fr_1fr_auto] gap-4 px-4 py-2 bg-gray-100 font-semibold text-sm text-gray-700 text-center">
             <div>Référence</div>
@@ -209,8 +216,10 @@ const fields = reactive({
           </div>
 
           <div v-for="(product, key) in products" :key="key" class="flex flex-col w-full">
+            <!-- Table Row -->
             <div
                 class="grid grid-cols-[1fr_2fr_2fr_3fr_1fr_1fr_auto] gap-4 px-4 py-3 items-center hover:bg-gray-50 cursor-pointer transition-colors text-center">
+              <!-- Product details -->
               <div class="text-sm font-medium">{{ product.reference }}</div>
               <div class="text-sm">{{ product.family }}</div>
               <div class="text-sm">{{ product.priceWithoutTax.toFixed(2) }}€</div>
@@ -222,6 +231,7 @@ const fields = reactive({
                   v-model="product.bio"
               />
               <div class="flex gap-2">
+                <!-- Edit and Delete buttons -->
                 <BaseButton size="sm" variant="primary" @click.stop="openModal(product)">
                   <Icon name="ic:baseline-edit" class="size-4"/>
                 </BaseButton>
@@ -235,9 +245,11 @@ const fields = reactive({
         </div>
         <Modal :is-visible="modalCreationProduct" @close-modal="closeModal" @save-modal="saveProduct">
           <div class="flex flex-col w-full h-full gap-4 overflow-auto px-4 py-2">
+            <!-- Modal content -->
             <h2 class="text-black font-bold text-2xl mb-4">Créer / modifier un nouveau produit</h2>
             <div class="flex flex-col gap-4 text-black">
               <div class="flex flex-row w-full gap-2 items-center">
+                <!-- Reference and Family -->
                 <div class="flex flex-col w-full">
                   <label for="reference">Référence :</label>
                   <BaseInput placeholder="PROD000" rounded="md" id="reference"
@@ -298,6 +310,7 @@ const fields = reactive({
               </div>
             </div>
           </div>
+          <!-- Modal actions (need to be implemented) -->
           <BaseButton class="w-full">Imprimer</BaseButton>
         </Modal>
       </BaseCard>

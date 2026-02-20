@@ -129,7 +129,7 @@ const openModal = (client: {
   subdivision: string;
   country: string;
 }) => {
-  modalClientDetails.value = client;
+  modalClientDetails.value = JSON.parse(JSON.stringify(client));
   modalCreationClient.value = true;
 }
 

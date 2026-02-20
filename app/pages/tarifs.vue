@@ -1,14 +1,24 @@
 <script setup lang="ts">
+import {ref} from "vue";
 import Overlay from '../components/Overlay.vue'
+
 
 </script>
 
 <template>
-  <Overlay>
-  <div class="p-10">
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-3xl font-bold text-600 bg-#1E293B">Consultation des tarifs</h1>
-    </div>
+  <Overlay :focus-page="0" :focus-under-page="1">
+  <div class="flex flex-col w-full p-8 gap-5 h-full">
+      <h1 class="text-black font-bold text-3x">Consultation des tarifs</h1>
+      <BaseCard variant="none" rounded="md"
+                class="px-5 py-4 bg-white border-gray-300/50 flex flex-col w-full h-110 gap-2">
+        <div class="flex flex-row w-full gap-4 items-center mb-6">
+          <BaseInput
+              v-model="value"
+              rounded="md"
+              placeholder="Rechercher un tarif..."
+          />
+        </div>
+      </BaseCard>
   </div>
   </Overlay>
 </template>

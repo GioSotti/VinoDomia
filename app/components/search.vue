@@ -48,12 +48,12 @@ function toggleBurger() {
           <div class="p-4 gap-5 flex flex-col">
             <div>
               <p class="text-2xl text-gray-700 font-black text-center pb-2">User</p>
-              <BaseButton size="md" variant="none"
+              <BaseButton size="md" variant="default"
                           class="w-full mt-2 justify-between bg-gray-100 rounded-md items-center">
                 <Icon name="solar:settings-bold" class="mr-2 size-5"/>
                 Paramètres
               </BaseButton>
-              <BaseButton size="md" variant="none"
+              <BaseButton size="md" variant="default"
                           class="w-full mt-2 justify-between bg-gray-100 rounded-md items-center">
                 <Icon name="solar:logout-2-bold" class="mr-2 size-5"/>
                 Se déconnecter

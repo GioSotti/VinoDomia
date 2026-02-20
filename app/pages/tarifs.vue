@@ -6,14 +6,58 @@ const tarifs = ref([
   {
     id: 0,
     reference: "CHAUT13",
-    libelle: "CHATEAU MONTFIN CUVEE L'AUTRE 2013 CE",
+    libelle: "CHATEAU MONTFIN CUVEE L'AUTRE 2013",
     quantite: "1.00",
     typeTarif: "1SUP GROS",
     prixHt: "15,11 €",
-    prixHtHorsDroits: "15,03 €",
+    prixHtHorsDroits: "15,08 €",
     prixHtFutur: "15,11 €",
-    prixHtFuturHorsDroits: "15,03 €"
+    prixHtFuturHorsDroits: "15,08 €"
   },
+  {
+    id: 1,
+    reference: "CHAUT13",
+    libelle: "CHATEAU MONTFIN CUVEE L'AUTRE 2013",
+    quantite: "1.00",
+    typeTarif: "2GROSS",
+    prixHt: "15,32 €",
+    prixHtHorsDroits: "15,29 €",
+    prixHtFutur: "15,32 €",
+    prixHtFuturHorsDroits: "15,29 €"
+  },
+  {
+    d: 2,
+    reference: "CHAUT13",
+    libelle: "CHATEAU MONTFIN CUVEE L'AUTRE 2013",
+    quantite: "1.00",
+    typeTarif: "3CAVIS",
+    prixHt: "15,74 €",
+    prixHtHorsDroits: "15,71 €",
+    prixHtFutur: "15,74 €",
+    prixHtFuturHorsDroits: "15,71 €"
+  },
+  {
+    id: 3,
+    reference: "CHAUT13",
+    libelle: "CHATEAU MONTFIN CUVEE L'AUTRE 2013",
+    quantite: "1.00",
+    typeTarif: "3CAVPT",
+    prixHt: "16,58 €",
+    prixHtHorsDroits: "16,55 €",
+    prixHtFutur: "16,58 €",
+    prixHtFuturHorsDroits: "16,55 €"
+  },
+  {
+    id: 4,
+    reference: "CHAUT13",
+    libelle: "CHATEAU MONTFIN CUVEE L'AUTRE 2013",
+    quantite: "1.00",
+    typeTarif: "4CE",
+    prixHt: "17,21 €",
+    prixHtHorsDroits: "17,18 €",
+    prixHtFutur: "17,21 €",
+    prixHtFuturHorsDroits: "17,18 €"
+  }
 ]);
 
 const modalTarifDetails = ref({

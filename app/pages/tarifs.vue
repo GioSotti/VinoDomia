@@ -26,7 +26,7 @@ const tarifs = ref([
     prixHtFuturHorsDroits: "15,29 €"
   },
   {
-    d: 2,
+    id: 2,
     reference: "CHAUT13",
     libelle: "CHATEAU MONTFIN CUVEE L'AUTRE 2013",
     quantite: "1.00",
@@ -177,9 +177,9 @@ const saveTarif = () => {
         </div>
       </BaseCard>
   </div>
-    <Modal :is-visible="modalCreationTarif" @close-modal="closeModal" @save-modal="saveTarif">
+    <Modal :is-visible="modalCreationTarif" @close-modal="closeModal" @save-modal="saveTarif" save-label="Sauvegarder" cancel-label="Annuler">
       <div class="flex flex-col w-full h-140 gap-4 overflow-auto px-4 py-2">
-        <h2 class="text-black font-bold text-2xl mb-4">Créer un nouveau tarif</h2>
+        <h2 class="text-black font-bold text-2xl mb-4">Modifier</h2>
         <div class="flex flex-col gap-4 text-black">
           <div class="flex flex-col gap-2">
             <label for="reference">Référence :</label>

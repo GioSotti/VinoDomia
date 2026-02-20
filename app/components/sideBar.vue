@@ -69,7 +69,7 @@ const props = defineProps<{
   isBurgerMenu: Boolean
 }>()
 
-const focusPageModification = ref(props.focusPage);
+const focusPageModification = ref(props.focusPage ?? 0);
 
 const children = computed(() => {
   return (links.value[focusPageModification.value]?.children) ?? [];

@@ -36,8 +36,33 @@ const openModal = (tarif: typeof modalTarifDetails.value) => {
   modalCreationTarif.value = true;
 }
 
+const closeModal = () => {
+  modalCreationTarif.value = false;
+  modalTarifDetails.value = {
+    id: tarifs.value.length,
+    reference: "",
+    libelle: "",
+    quantite: "",
+    typeTarif: "",
+    prixHt: "",
+    prixHtHorsDroits: "",
+    prixHtFutur: "",
+    prixHtFuturHorsDroits: ""
+  };
+}
+
 const deleteTarif = (tarifId: number) => {
   tarifs.value = tarifs.value.filter(tarif => tarif.id !== tarifId);
+}
+
+const saveTarif = () => {
+  const existingTarifIndex = tarifs.value.findIndex(tarif => tarif.id === modalTarifDetails.value.id);
+  if (existingTarifIndex !== -1) {
+    tarifs.value[existingTarifIndex] = {...modalTarifDetails.value};
+  } else {
+    tarifs.value.push({...modalTarifDetails.value});
+  }
+  closeModal();
 }
 
 </script>
@@ -108,6 +133,50 @@ const deleteTarif = (tarifId: number) => {
         </div>
       </BaseCard>
   </div>
+    <Modal :is-visible="modalCreationTarif" @close-modal="closeModal" @save-modal="saveTarif">
+      <div class="flex flex-col w-full h-140 gap-4 overflow-auto px-4 py-2">
+        <h2 class="text-black font-bold text-2xl mb-4">Créer un nouveau tarif</h2>
+        <div class="flex flex-col gap-4 text-black">
+          <div class="flex flex-col gap-2">
+            <label for="reference">Référence :</label>
+            <BaseInput rounded="md" id="reference" v-model="modalTarifDetails.reference"/>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label for="libelle">Libellé :</label>
+            <BaseInput rounded="md" id="libelle" v-model="modalTarifDetails.libelle"/>
+          </div>
+          <div class="flex flex-row w-full gap-2">
+            <div class="flex flex-col gap-2 w-full">
+              <label for="quantite">Quantité :</label>
+              <BaseInput rounded="md" id="quantite" v-model="modalTarifDetails.quantite"/>
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label for="typeTarif">Type tarif :</label>
+              <BaseInput rounded="md" id="typeTarif" v-model="modalTarifDetails.typeTarif"/>
+            </div>
+          </div>
+          <div class="flex flex-row w-full gap-2">
+            <div class="flex flex-col gap-2 w-full">
+              <label for="prixHt">Prix HT :</label>
+              <BaseInput rounded="md" id="prixHt" v-model="modalTarifDetails.prixHt"/>
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label for="prixHtHorsDroits">Prix HT hors droits :</label>
+              <BaseInput rounded="md" id="prixHtHorsDroits" v-model="modalTarifDetails.prixHtHorsDroits"/>
+            </div>
+          </div>
+          <div class="flex flex-row w-full gap-2">
+            <div class="flex flex-col gap-2 w-full">
+              <label for="prixHtFutur">Prix HT futur :</label>
+              <BaseInput rounded="md" id="prixHtFutur" v-model="modalTarifDetails.prixHtFutur"/>
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label for="prixHtFuturHorsDroits">Prix HT futur hors droits :</label>
+              <BaseInput rounded="md" id="prixHtFuturHorsDroits" v-model="modalTarifDetails.prixHtFuturHorsDroits"/>
+            </div>
+          </div>
+        </div></div>
+    </Modal>
   </Overlay>
 </template>
 

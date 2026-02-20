@@ -2,6 +2,8 @@
 import {ref} from "vue";
 import Overlay from '../components/Overlay.vue'
 
+const modalCreationTarif = ref(false);
+const value = ref("");
 
 </script>
 
@@ -17,6 +19,16 @@ import Overlay from '../components/Overlay.vue'
               rounded="md"
               placeholder="Rechercher un tarif..."
           />
+          <BaseButton size="md" variant="primary" class="w-fit flex gap-2">
+            <Icon name="ic:baseline-search" class="size-5"/>
+            Rechercher
+          </BaseButton>
+          <span class="h-full w-0.5 bg-gray-500"></span>
+          <BaseButton size="md" variant="primary" class="w-fit flex"
+                      @click="modalCreationTarif = !modalCreationTarif">
+            <Icon name="ic:round-add-circle-outline" class="size-5"/>
+            Ajouter un tarif
+          </BaseButton>
         </div>
       </BaseCard>
   </div>

@@ -36,13 +36,37 @@ function toggleBurger() {
         />
         <span class="notification-badge"></span>
       </button>
-      <button class="icon-button user-button">
-        <img
-            src="/icons/utilisateur.png"
-            alt="Profile"
-            class="user-icon"
-        />
-      </button>
+      <BasePopover>
+        <button class="icon-button user-button">
+          <img
+              src="/icons/utilisateur.png"
+              alt="Profile"
+              class="user-icon"
+          />
+        </button>
+        <template #content>
+          <div class="p-4 gap-5 flex flex-col">
+            <div>
+              <p class="text-2xl text-gray-700 font-black text-center pb-2">User</p>
+              <BaseButton size="md" variant="default"
+                          class="w-full mt-2 justify-between bg-gray-100 rounded-md items-center">
+                <Icon name="solar:settings-bold" class="mr-2 size-5"/>
+                Paramètres
+              </BaseButton>
+              <BaseButton size="md" variant="default"
+                          class="w-full mt-2 justify-between bg-gray-100 rounded-md items-center">
+                <Icon name="solar:logout-2-bold" class="mr-2 size-5"/>
+                Se déconnecter
+              </BaseButton>
+            </div>
+            <div class="bg-gray-300 w-full h-px"></div>
+            <div class="flex flex-row items-center justify-around">
+              <h2 class="text-md">Changer de Theme : </h2>
+              <BaseThemeSystem/>
+            </div>
+          </div>
+        </template>
+      </BasePopover>
       <span class="user-badge"></span>
     </div>
   </div>

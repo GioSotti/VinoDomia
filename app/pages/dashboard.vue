@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import SideBar from "~/sideBar.vue";
-import Search from "~~/components/search.vue";
 
 const name = ref("SCEA Château Montfin");
 const unpayedBillsAmount = ref(153);
@@ -66,8 +64,8 @@ const ongoingActivities = ref([{
       <!-- Cards -->
       <div class="flex flex-col gap-5">
         <div class="flex flex-col xl:flex-row gap-6">
-          <BaseCard variant="none" rounded="md"
-                    class=" bg-red-500 border border-red-800 flex flex-col w-full gap-2 text-white">
+          <NuxtLink to="/bills" variant="none"
+                    class=" bg-red-500 border border-red-800 flex flex-col w-full gap-2 text-white rounded-md">
             <div class="py-3 px-4">
               <!-- First row BaseCard content -->
               <div class="flex flex-row w-full gap-6 justify-between items-center">
@@ -83,7 +81,7 @@ const ongoingActivities = ref([{
               <Icon name="solar:info-circle-bold"/>
               <h3>Factures impayées</h3>
             </div>
-          </BaseCard>
+          </NuxtLink>
           <BaseCard variant="none" rounded="md"
                     class=" bg-white border border-yellow-600 flex flex-col w-full gap-2 justify-between">
             <div class="py-3 px-4 text-black">

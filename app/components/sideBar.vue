@@ -69,7 +69,7 @@ const props = defineProps<{
   isBurgerMenu: Boolean
 }>()
 
-const focusPageModification = ref(props.focusPage);
+const focusPageModification = ref(props.focusPage ?? 0);
 
 const children = computed(() => {
   return (links.value[focusPageModification.value]?.children) ?? [];
@@ -128,7 +128,7 @@ const isSameBurgerPage = computed(() => {
              :class="{ 'bg-[#323f4f]': isSameBurgerPage && focusUnderPage === childKey, 'bg-transparent': !isSameBurgerPage || focusUnderPage !== childKey }">
           <Icon :name="link.icon" class="h-6 w-6"
                 :class="{ 'text-white': isSameBurgerPage && focusUnderPage === childKey, 'text-[#7c8491]': !isSameBurgerPage || focusUnderPage !== childKey }"/>
-          <NuxtLink :to="link.href"
+          <NuxtLink :to="link.href" class="w-full"
                     :class="{ 'text-white': isSameBurgerPage && focusUnderPage === childKey, 'text-[#7c8491]': !isSameBurgerPage || focusUnderPage !== childKey }">
             {{ link.title }}
           </NuxtLink>

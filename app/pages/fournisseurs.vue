@@ -8,6 +8,18 @@ const fournisseurs = ref([
     societe: "ALARIC SARL",
     contact: "ROUANET",
     ville: "BARBAIRA",
+  },
+  {
+    id: 1,
+    societe: "CARINE GIBOUT SAFRAN DE PEYRIAC ",
+    contact: "CARINE",
+    ville: "PEYRIAC DE MER",
+  },
+  {
+    id: 2,
+    societe: "CHAMPAGE DELAHAIE",
+    contact: "BROCHET",
+    ville: "EPERNAY",
   }
 ])
 
@@ -26,8 +38,28 @@ const openModal = (fournisseur: typeof modalFournisseurDetails.value) => {
   modalCreationFournisseur.value = true;
 }
 
+const closeModal = () => {
+  modalCreationFournisseur.value = false;
+  modalFournisseurDetails.value = {
+    id: fournisseurs.value.length,
+    societe: "",
+    contact: "",
+    ville: ""
+  };
+}
+
 const deleteFournisseur = (fournisseurId: number) => {
   fournisseurs.value = fournisseurs.value.filter(fournisseur => fournisseur.id !== fournisseurId);
+}
+
+const saveFournisseur = () => {
+  const existingFournisseurIndex = fournisseurs.value.findIndex(fournisseur => fournisseur.id === modalFournisseurDetails.value.id);
+  if (existingFournisseurIndex !== -1) {
+    fournisseurs.value[existingFournisseurIndex] = {...modalFournisseurDetails.value};
+  } else {
+    fournisseurs.value.push({...modalFournisseurDetails.value});
+  }
+  closeModal();
 }
 
 </script>
@@ -57,20 +89,21 @@ const deleteFournisseur = (fournisseurId: number) => {
       <div class="flex flex-col w-full gap-3 overflow-y-auto flex-1">
         <div v-for="(fournisseur, key) in fournisseurs" :key="key" class="flex flex-col w-full gap-3">
           <div class="flex flex-row w-full gap-2 items-center justify-between pr-2">
-            <div class="flex flex-row items-center gap-4 flex-1">
-              <div class="flex flex-col w-32">
+            <div class="flex flex-row items-center gap-4 flex-1 min-w-0">
+              <div class="flex flex-col w-32 min-w-0">
                 <h4 class="text-gray-500 text-xs">Société</h4>
-                <h3 class="text-black font-semibold">{{ fournisseur.societe }}</h3>
+                <h3 class="text-black font-semibold truncate" :title="fournisseur.societe">{{ fournisseur.societe }}</h3>
               </div>
-              <div class="flex flex-col flex-1">
+              <div class="flex flex-col flex-1 min-w-0">
                 <h4 class="text-gray-500 text-xs">Contact</h4>
-                <h3 class="text-black">{{ fournisseur.contact }}</h3>
-              </div><div class="flex flex-col w-24">
-              <h4 class="text-gray-500 text-xs">Ville</h4>
-              <h3 class="text-black">{{ fournisseur.ville }}</h3>
+                <h3 class="text-black truncate" :title="fournisseur.contact">{{ fournisseur.contact }}</h3>
+              </div>
+              <div class="flex flex-col w-24 min-w-0">
+                <h4 class="text-gray-500 text-xs">Ville</h4>
+                <h3 class="text-black truncate" :title="fournisseur.ville">{{ fournisseur.ville }}</h3>
+              </div>
             </div>
-            </div>
-            <div class="flex flex-row gap-2 items-center">
+            <div class="flex flex-row gap-2 items-center flex-shrink-0">
               <BaseButton @click="openModal(fournisseur)">
                 <Icon name="ic:baseline-edit" class="size-5"/>
               </BaseButton>
@@ -85,7 +118,27 @@ const deleteFournisseur = (fournisseurId: number) => {
       </div>
     </BaseCard>
   </div>
-
+  <Modal :is-visible="modalCreationFournisseur" @close-modal="closeModal" @save-modal="saveFournisseur" save-label="Sauvegarder" cancel-label="Annuler">
+    <div class="flex flex-col w-full h-140 gap-4 overflow-auto px-4 py-2">
+      <h2 class="text-black font-bold text-2xl mb-4">Modifier</h2>
+      <div class="flex flex-col gap-4 text-black">
+        <div class="flex flex-col gap-2">
+          <label for="societe">Société :</label>
+          <BaseInput rounded="md" id="societe" v-model="modalFournisseurDetails.societe"/>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="contact">Contact :</label>
+          <BaseInput rounded="md" id="contact" v-model="modalFournisseurDetails.contact"/>
+        </div>
+        <div class="flex flex-row w-full gap-2">
+          <div class="flex flex-col gap-2 w-full">
+            <label for="ville">Ville :</label>
+            <BaseInput rounded="md" id="ville" v-model="modalFournisseurDetails.ville"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Modal>
 </Overlay>
 </template>
 

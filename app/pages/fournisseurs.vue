@@ -90,15 +90,15 @@ const saveFournisseur = () => {
         <div v-for="(fournisseur, key) in fournisseurs" :key="key" class="flex flex-col w-full gap-3">
           <div class="flex flex-row w-full gap-2 items-center justify-between pr-2">
             <div class="flex flex-row items-center gap-4 flex-1 min-w-0">
-              <div class="flex flex-col w-32 min-w-0">
+              <div class="flex flex-col w-64 min-w-0">
                 <h4 class="text-gray-500 text-xs">Société</h4>
                 <h3 class="text-black font-semibold truncate" :title="fournisseur.societe">{{ fournisseur.societe }}</h3>
               </div>
-              <div class="flex flex-col flex-1 min-w-0">
+              <div class="flex flex-col w-32 min-w-0">
                 <h4 class="text-gray-500 text-xs">Contact</h4>
                 <h3 class="text-black truncate" :title="fournisseur.contact">{{ fournisseur.contact }}</h3>
               </div>
-              <div class="flex flex-col w-24 min-w-0">
+              <div class="flex flex-col w-32 min-w-0">
                 <h4 class="text-gray-500 text-xs">Ville</h4>
                 <h3 class="text-black truncate" :title="fournisseur.ville">{{ fournisseur.ville }}</h3>
               </div>

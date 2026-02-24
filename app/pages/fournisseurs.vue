@@ -26,6 +26,10 @@ const openModal = (fournisseur: typeof modalFournisseurDetails.value) => {
   modalCreationFournisseur.value = true;
 }
 
+const deleteFournisseur = (fournisseurId: number) => {
+  fournisseurs.value = fournisseurs.value.filter(fournisseur => fournisseur.id !== fournisseurId);
+}
+
 </script>
 
 <template>
@@ -65,6 +69,14 @@ const openModal = (fournisseur: typeof modalFournisseurDetails.value) => {
               <h4 class="text-gray-500 text-xs">Ville</h4>
               <h3 class="text-black">{{ fournisseur.ville }}</h3>
             </div>
+            </div>
+            <div class="flex flex-row gap-2 items-center">
+              <BaseButton @click="openModal(fournisseur)">
+                <Icon name="ic:baseline-edit" class="size-5"/>
+              </BaseButton>
+              <BaseButton @click="deleteFournisseur(fournisseur.id)">
+                <Icon name="ic:round-delete" class="size-5 bg-red-500"/>
+              </BaseButton>
             </div>
           </div>
           <div class="w-full h-px bg-gray-300"

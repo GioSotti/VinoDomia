@@ -20,7 +20,26 @@ const fournisseurs = ref([
     societe: "CHAMPAGE DELAHAIE",
     contact: "BROCHET",
     ville: "EPERNAY",
-  }
+  },
+  {
+    id: 3,
+    societe: "CHEICK SYLLA",
+    contact: "FALGUERA",
+    ville: "GRUISSAN",
+  },
+  {
+    id: 4,
+    societe: "GAEC E&L DROUIN - MIELERIE",
+    contact: "DROUIN",
+    ville: "VENTENAC CABARDES",
+  },
+  {
+    id: 5,
+    societe: "GRANHOTA SAS",
+    contact: "FAURE",
+    ville: "COURSAN",
+  },
+
 ])
 
 const modalFournisseurDetails = ref({
@@ -68,7 +87,7 @@ const saveFournisseur = () => {
 <Overlay :focus-pages="0" :focus-under-page="1">
   <div class="flex flex-col w-full p-8 gap-5 h-full">
     <h1 class="text-black font-bold text-3xl">Sélection d'un fournisseur</h1>
-    <BaseCard variant="none" rounded="md" class="px-5 py-4 bg-white border-gray-300/50 flex flex-col w-full h-110 gap-2">
+    <BaseCard variant="none" rounded="md" class="px-5 py-4 bg-white border-gray-300/50 flex flex-col w-full h-[600px] gap-2">
       <div class="flex flex-row w-full gap-4 items-center mb-6">
         <BaseInput
             v-model="value"

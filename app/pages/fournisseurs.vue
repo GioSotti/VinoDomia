@@ -2,8 +2,29 @@
 import {ref} from "vue";
 import Overlay from '../components/Overlay.vue'
 
+const fournisseurs = ref([
+  {
+    id: 0,
+    societe: "ALARIC SARL",
+    contact: "ROUANET",
+    ville: "BARBAIRA",
+  }
+])
+
+const modalFournisseurDetails = ref({
+  id: 0,
+  societe: "",
+  contact: "",
+  ville: ""
+});
+
 const modalCreationFournisseur = ref(false);
 const value = ref("");
+
+const openModal = (fournisseur: typeof modalFournisseurDetails.value) => {
+  modalFournisseurDetails.value = fournisseur;
+  modalCreationFournisseur.value = true;
+}
 
 </script>
 
@@ -28,6 +49,27 @@ const value = ref("");
           <Icon name="ic:round-add-circle-outline" class="size-5"/>
           Ajouter un fournisseur
         </BaseButton>
+      </div><span class="w-full h-0.5 bg-gray-300 mb-5"></span>
+      <div class="flex flex-col w-full gap-3 overflow-y-auto flex-1">
+        <div v-for="(fournisseur, key) in fournisseurs" :key="key" class="flex flex-col w-full gap-3">
+          <div class="flex flex-row w-full gap-2 items-center justify-between pr-2">
+            <div class="flex flex-row items-center gap-4 flex-1">
+              <div class="flex flex-col w-32">
+                <h4 class="text-gray-500 text-xs">Société</h4>
+                <h3 class="text-black font-semibold">{{ fournisseur.societe }}</h3>
+              </div>
+              <div class="flex flex-col flex-1">
+                <h4 class="text-gray-500 text-xs">Contact</h4>
+                <h3 class="text-black">{{ fournisseur.contact }}</h3>
+              </div><div class="flex flex-col w-24">
+              <h4 class="text-gray-500 text-xs">Ville</h4>
+              <h3 class="text-black">{{ fournisseur.ville }}</h3>
+            </div>
+            </div>
+          </div>
+          <div class="w-full h-px bg-gray-300"
+               :class="{ 'hidden': key === fournisseurs.length-1, 'block' : key !== fournisseurs.length-1 }"></div>
+        </div>
       </div>
     </BaseCard>
   </div>

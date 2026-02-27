@@ -18,7 +18,7 @@ const links = ref([{
     },
     {
       title: "Fournisseurs",
-      href: "#",
+      href: "/purchase_order",
       icon: "solar:home-smile-angle-linear"
     },
     {

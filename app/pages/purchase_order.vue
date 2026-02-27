@@ -64,8 +64,6 @@ const purchaseOrders = ref([
     status: 'En cours',
     destination: destinations.value[0] ?? {id: 0, name: "Destination innaccessible", address: "Adresse innaccessible"},
     items: [
-      {name: 'Produit 1', quantity: 10, price: 50},
-      {name: 'Produit 2', quantity: 5, price: 100}
       {
         quantity: 4,
         item: itemsList.value[0]!

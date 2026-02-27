@@ -116,12 +116,35 @@ const purchaseOrders = ref([
   }
 ]);
 
-const modalClientDetails = ref({
+purchaseOrders.value = purchaseOrders.value.map(purchaseOrder => {
+  const total = purchaseOrder.items.reduce((acc, entry) => acc + entry.quantity * entry.item.price, 0);
+  return {...purchaseOrder, total};
+});
+
+type ItemEntry = {
+  quantity: number;
+  item: { id: number; name: string; price: number };
+};
+
+const modalClientDetails = ref<{
+  id: number;
+  supplier: string;
+  date: string;
+  total: number;
+  status: string;
+  destination: { id: number; name: string; address: string };
+  items: ItemEntry[];
+}>({
   id: 0,
   supplier: '',
   date: '',
   total: 0,
   status: '',
+  destination: {
+    id: 0,
+    name: "",
+    address: "",
+  },
   items: []
 });
 
@@ -135,9 +158,19 @@ const openModal = (client: {
   date: string;
   total: number;
   status: string;
-  items: { name: string; quantity: number; price: number }[];
+  destination: {
+    id: number;
+    name: string;
+    address: string;
+  };
+  items: ItemEntry[];
 }) => {
-  modalClientDetails.value = JSON.parse(JSON.stringify(client));
+  const cloned: any = JSON.parse(JSON.stringify(client));
+  cloned.items = (cloned.items || []).map((entry: any) => ({
+    quantity: (entry && typeof entry.quantity === 'number') ? entry.quantity : 1,
+    item: entry.item
+  }));
+  modalClientDetails.value = cloned;
   modalCreationPurchaseOrder.value = true;
 }
 
@@ -149,6 +182,11 @@ const closeModal = () => {
     date: '',
     total: 0,
     status: '',
+    destination: {
+      id: 0,
+      name: "",
+      address: "",
+    },
     items: []
   };
 }
@@ -165,8 +203,19 @@ const savePurchaseOrder = () => {
     purchaseOrders.value.push({...modalClientDetails.value});
   }
   closeModal();
+  purchaseOrders.value = purchaseOrders.value.map(purchaseOrder => {
+    const total = purchaseOrder.items.reduce((acc, entry) => acc + entry.quantity * entry.item.price, 0);
+    return {...purchaseOrder, total};
+  });
 }
 
+const addItem = () => {
+  modalClientDetails.value.items.push({quantity: 1, item: itemValue.value!});
+}
+
+const removeItemAt = (index: number) => {
+  modalClientDetails.value.items.splice(index, 1);
+}
 </script>
 
 <template>

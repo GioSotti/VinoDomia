@@ -244,28 +244,31 @@ const removeItemAt = (index: number) => {
         </div>
         <span class="w-full h-px bg-gray-300"></span>
         <div class="flex flex-col gap-4 text-black overflow-auto w-full">
-          <div v-for="(purchaseOrder) in purchaseOrders" :key="purchaseOrder.id"
-               class="flex flex-col w-full justify-between">
-            <div class="flex flex-row w-full gap-4 items-center justify-between pr-2">
+          <div v-for="(purchaseOrder, key) in purchaseOrders" :key="purchaseOrder.id"
+               class="flex flex-col w-full justify-between gap-3">
+            <div class="grid grid-cols-[2fr_2fr_2fr_2fr_1fr_auto] w-full gap-4 items-center justify-between pr-2 px-2">
               <div class="flex flex-col">
-                <h3 class="text-black font-light">Fournisseurs :</h3>
+                <h3 class="text-black font-light text-sm">Fournisseurs :</h3>
                 <h2 class="text-black">{{ purchaseOrder.supplier }}</h2>
               </div>
               <div class="flex flex-col">
-                <h3 class="text-black font-light">Date :</h3>
+                <h3 class="text-black font-light text-sm">Date :</h3>
                 <h2 class="text-black">{{ purchaseOrder.date }}</h2>
               </div>
               <div class="flex flex-col">
-                <h3 class="text-black font-light">Total : </h3>
+                <h3 class="text-black font-light text-sm">Total : </h3>
                 <h2 class="text-black">{{ parsePrice(purchaseOrder.total, "€") }}</h2>
               </div>
               <div class="flex flex-col">
-                <h3 class="text-black font-light">Status :</h3>
+                <h3 class="text-black font-light text-sm">Status :</h3>
                 <h2 class="text-black">{{ purchaseOrder.status }}</h2>
               </div>
               <div class="flex flex-col">
-                <h3 class="text-black font-light">Items :</h3>
-                <h2>{{ purchaseOrder.items?.length }}</h2>
+                <h3 class="text-black font-light text-sm">Items :</h3>
+                <h2>{{
+                    purchaseOrder.items.reduce((accumulator, currentValue) => accumulator + currentValue.quantity,
+                        0,)
+                  }}</h2>
               </div>
               <div class="flex flex-row gap-2">
                 <BaseButton size="sm" variant="primary" @click.stop="openModal(purchaseOrder)">
@@ -276,6 +279,7 @@ const removeItemAt = (index: number) => {
                 </BaseButton>
               </div>
             </div>
+            <div class="w-full h-[0.5px] bg-gray-300" :class="{ 'hidden': key === purchaseOrders.length-1 }"></div>
           </div>
         </div>
       </BaseCard>
@@ -285,7 +289,71 @@ const removeItemAt = (index: number) => {
          :firstButtonText="'Save'" :secondButtonText="'Cancel'">
     <div class="flex flex-col w-full h-140 gap-4 overflow-auto px-4 py-2">
       <h2 class="text-black font-bold text-2xl mb-4">Créer un nouveau bon de commande</h2>
-
+      <div class="flex flex-col gap-4 text-black">
+        <div class="flex flex-row w-full gap-2 items-center">
+          <div class="flex flex-col w-full">
+            <label for="supplier">Fournisseur :</label>
+            <BaseSelect v-model="modalClientDetails.supplier" placeholder="Select a value...">
+              <BaseSelectItem v-for="supplier in supplier" :key="supplier.id" :value="supplier.name">
+                {{ supplier.name }}
+              </BaseSelectItem>
+            </BaseSelect>
+          </div>
+          <div class="flex flex-col w-1/3">
+            <label for="date">Date :</label>
+            <BaseInput type="date" v-model="modalClientDetails.date"/>
+          </div>
+        </div>
+        <div class="flex flex-col w-full">
+          <label for="destination">Destination :</label>
+          <BaseSelect v-model="modalClientDetails.destination" placeholder="Select a value...">
+            <BaseSelectItem v-for="destination in destinations" :key="destination.id" :value="destination">
+              {{ destination.name }} - {{ destination.address }}
+            </BaseSelectItem>
+          </BaseSelect>
+        </div>
+        <h3 class="text-lg text-center">Ajouter des objets</h3>
+        <div class="flex flex-row w-full gap-2 items-center">
+          <BaseSelect v-model="itemValue" placeholder="Select a value..." class="w-full h-full">
+            <BaseSelectItem v-for="item in itemsList" :key="item.id" :value="item">
+              <h4>{{ item.name }} - {{ parsePrice(item.price, "€") }}</h4>
+            </BaseSelectItem>
+          </BaseSelect>
+          <BaseButton @click="addItem" class="w-fit flex">
+            <Icon name="ic:round-add-circle-outline" class="size-5"/>
+            Ajouter un objet
+          </BaseButton>
+        </div>
+        <BaseCard class="px-4 bg-background-grey h-full">
+          <div v-for="(entry, key) in modalClientDetails.items" :key="key" class="flex flex-col w-full gap-2 px-2 py-1">
+            <div class="flex flex-row w-full gap-2 items-center">
+              <div class="flex flex-col w-full">
+                <h3 class="text-black font-light text-sm">Item {{ key + 1 }} :</h3>
+                <h2 class="text-black">{{ entry.item.name }}</h2>
+              </div>
+              <div class="flex flex-col w-full">
+                <h3 class="text-black font-light text-sm">Qté :</h3>
+                <BaseInputNumber
+                    v-model="entry.quantity"
+                    rounded="sm"
+                    placeholder="Quantity"
+                    :min="1"
+                    class="w-1/5"
+                />
+              </div>
+              <div class="flex flex-col w-full items-center">
+                <h3 class="text-black font-light text-sm">Prix : </h3>
+                <h2 class="text-black">{{ parsePrice(entry.item.price * entry.quantity, "€") }}</h2>
+                <h4 class="text-black font-light text-sm" v-if="entry.quantity != 1">{{"Unit : " + parsePrice(entry.item.price, "€")}}</h4>
+              </div>
+              <BaseButton size="sm" variant="destructive" @click.stop="removeItemAt(key)">
+                <Icon name="ic:baseline-delete" class="size-4"/>
+              </BaseButton>
+            </div>
+            <div class="w-full h-px bg-gray-300" :class="{ 'hidden': key === modalClientDetails.items.length-1 }"></div>
+          </div>
+        </BaseCard>
+      </div>
     </div>
   </Modal>
 </template>

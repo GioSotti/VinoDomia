@@ -2,6 +2,8 @@
 defineEmits(['close-modal', 'save-modal']);
 defineProps<{
   isVisible: Boolean,
+  firstButtonText?: String,
+  secondButtonText?: String,
 }>();
 </script>
 
@@ -11,8 +13,12 @@ defineProps<{
       <div class="bg-white rounded-lg shadow-lg p-6 w-1/2">
         <slot></slot>
         <div class="flex gap-4 mt-6 ">
-          <BaseButton variant="primary" @click="$emit('save-modal')" rounded="lg" class="w-full">Save</BaseButton>
-          <BaseButton variant="default" @click="$emit('close-modal')" rounded="lg" class="w-full">Cancel</BaseButton>
+          <BaseButton variant="primary" @click="$emit('save-modal')" rounded="lg" class="w-full"
+                      :class="[firstButtonText === null ? 'hidden' : 'block']">{{ firstButtonText }}
+          </BaseButton>
+          <BaseButton variant="default" @click="$emit('close-modal')" rounded="lg" class="w-full"
+                      :class="[secondButtonText === null ? 'hidden' : 'block']">{{ secondButtonText }}
+          </BaseButton>
         </div>
       </div>
     </div>

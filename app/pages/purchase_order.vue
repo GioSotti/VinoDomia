@@ -2,41 +2,119 @@
 import {ref} from "vue";
 import {parsePrice} from "~/utils/parsePriceUtils";
 
+const supplier = ref([
+  {
+    id: 0,
+    name: "Fournisseur A",
+    phone: "0612345678",
+    postalAddress: "123 Rue de la Paix, 75001 Paris",
+    email: "fournisseurA@mail.com"
+  }, {
+    id: 1,
+    name: "Fournisseur B",
+    phone: "0698765432",
+    postalAddress: "456 Avenue des Champs, 69001 Lyon",
+    email: "fournisseurB@mail.com"
+  },
+  {
+    id: 2,
+    name: "Fournisseur C",
+    phone: "0687654321",
+    postalAddress: "789 Boulevard de la Mer, 13001 Marseille",
+    email: "fournisseurC@mail.com"
+  }]);
+
+const destinations = ref([
+  {
+    id: 0,
+    name: "Entrepôt A",
+    address: "123 Rue de la Paix, 75001 Paris"
+  },
+  {
+    id: 1,
+    name: "Entrepôt B",
+    address: "456 Avenue des Champs, 69001 Lyon"
+  },
+  {
+    id: 2,
+    name: "Entrepôt C",
+    address: "789 Boulevard de la Mer, 13001 Marseille"
+  }
+]);
+
+const itemsList = ref<{ id: number; name: string; price: number }[]>([
+  {id: 0, name: "Produit 1", price: 50},
+  {id: 1, name: "Produit 2", price: 100},
+  {id: 2, name: "Produit 3", price: 75},
+  {id: 3, name: "Produit 4", price: 150},
+  {id: 4, name: "Produit 5", price: 40},
+  {id: 5, name: "Produit 6", price: 120},
+  {id: 6, name: "Produit 7", price: 60}
+]);
+
+const itemValue = ref(itemsList.value[0]!
+);
+
 const purchaseOrders = ref([
   {
     id: 1,
-    supplier: 'Fournisseur A',
+    supplier: supplier.value[0]?.name ?? "Nom innaccessible",
     date: '2024-06-01',
-    total: 1500.01,
+    total: 0,
     status: 'En cours',
+    destination: destinations.value[0] ?? {id: 0, name: "Destination innaccessible", address: "Adresse innaccessible"},
     items: [
       {name: 'Produit 1', quantity: 10, price: 50},
       {name: 'Produit 2', quantity: 5, price: 100}
+      {
+        quantity: 4,
+        item: itemsList.value[0]!
+      },
+      {
+        quantity: 1,
+        item: itemsList.value[1]!
+      }
     ]
   },
   {
     id: 2,
-    supplier: 'Fournisseur B',
+    supplier: supplier.value[1]?.name ?? "Nom innaccessible",
     date: '2024-06-05',
-    total: 2500.50,
+    total: 0,
     status: 'Livré',
+    destination: destinations.value[1] ?? {id: 0, name: "Destination innaccessible", address: "Adresse innaccessible"},
     items: [
-      {name: 'Produit 3', quantity: 20, price: 75},
-      {name: 'Produit 4', quantity: 10, price: 150}
+      {
+        quantity: 4,
+        item: itemsList.value[2]!
+      },
+      {
+        quantity: 3,
+        item: itemsList.value[3]!
+      }
     ]
   },
   {
     id: 3,
-    supplier: 'Fournisseur C',
+    supplier: supplier.value[2]?.name ?? "Nom innaccessible",
     date: '2024-06-10',
-    total: 1000.00,
-    status: 'Annulé', items: [{
-      name: 'Produit 5', quantity: 15, price: 40
-    }, {
-      name: 'Produit 6', quantity: 8, price: 120
-    }, {
-      name: 'Produit 7', quantity: 12, price: 60
-    }]
+    total: 0,
+    status: 'Annulé',
+    destination: destinations.value[2] ?? {id: 0, name: "Destination innaccessible", address: "Adresse innaccessible"},
+    items: [
+      {
+        quantity: 2,
+        item: itemsList.value[4]!
+      },
+      {
+        quantity: 3,
+        item: itemsList.value[5]!
+      },
+      {
+        quantity: 1,
+        item: itemsList.value[6]!
+      }
+    ]
   }
 ]);
 

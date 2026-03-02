@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import {ref, computed} from "vue";
 import Overlay from '../components/Overlay.vue'
+import calendarIcon from '../public/icons/calendar.png';
+
 
 const today = new Date();
 const formattedDate = today.toISOString().split('T')[0];
@@ -91,6 +93,50 @@ const valider = () => {
           >
             Valider
           </button>
+        </div>
+        <div class="flex flex-col gap-4 flex-1">
+          <div class="flex items-center gap-4">
+            <label class="font-semibold text-base whitespace-nowrap">Date du mouvement</label>
+            <input
+                type="date"
+                v-model="dateMovement"
+                class="border border-gray-400 px-3 py-2 rounded flex-1"
+            />
+            <button class="bg-gray-300 hover:bg-gray-400 p-2 rounded">
+              <img :src="calendarIcon" alt="Calendrier" class="w-5 h-5" />
+            </button>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <label class="font-semibold text-base w-48">Solde caisse avant</label>
+            <input
+                type="text"
+                :value="soldeCaisseAvant.toFixed(2) + ' €'"
+                readonly
+                class="border border-gray-400 px-3 py-2 rounded bg-gray-100 text-right flex-1"
+            />
+          </div>
+
+          <div class="flex items-center gap-4">
+            <label class="font-semibold text-base w-48">Valeur du mouvement</label>
+            <input
+                type="number"
+                v-model.number="valeurMovement"
+                step="0.01"
+                class="border border-gray-400 px-3 py-2 rounded text-right flex-1"
+            />
+            <span class="text-base">€</span>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <label class="text-gray-500 text-base w-48">... après</label>
+            <input
+                type="text"
+                :value="soldeCaisseApres.toFixed(2) + ' €'"
+                readonly
+                class="border border-gray-400 px-3 py-2 rounded bg-gray-100 text-right flex-1"
+            />
+          </div>
         </div>
       </div>
     </div>

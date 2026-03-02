@@ -2,8 +2,44 @@
 import {ref} from "vue";
 import Overlay from '../components/Overlay.vue'
 
-const motif = ref('remise_banque');
+const today = new Date();
+const formattedDate = today.toISOString().split('T')[0];
 
+const motif = ref('remise_banque');
+const dateMovement = ref(formattedDate);
+const soldeCaisseAvant = ref(30.00);
+const valeurMovement = ref(0.00);
+
+const soldeCaisseApres = computed(() => {
+  let newSolde = soldeCaisseAvant.value;
+
+  switch(motif.value) {
+    case 'remise_banque':
+      newSolde -= valeurMovement.value;
+      break;
+    case 'sortie_achat':
+      newSolde -= valeurMovement.value;
+      break;
+    case 'retour_achat':
+      newSolde += valeurMovement.value;
+      break;
+    case 'entree_banque':
+      newSolde += valeurMovement.value;
+      break;
+  }
+
+  return newSolde;
+});
+
+const valider = () => {
+  console.log('Validation du mouvement:', {
+    motif: motif.value,
+    date: dateMovement.value,
+    soldeCaisseAvant: soldeCaisseAvant.value,
+    valeurMovement: valeurMovement.value,
+    soldeCaisseApres: soldeCaisseApres.value
+  });
+};
 </script>
 
 <template>
@@ -49,7 +85,12 @@ const motif = ref('remise_banque');
             />
             <span class="text-base">Entrée depuis banque</span>
           </label>
-
+          <button
+              @click="valider"
+              class="mt-4 bg-gray-800 text-white py-3 px-8 rounded hover:bg-gray-700 transition-colors font-semibold"
+          >
+            Valider
+          </button>
         </div>
       </div>
     </div>

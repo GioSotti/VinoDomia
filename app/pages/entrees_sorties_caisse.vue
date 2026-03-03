@@ -74,13 +74,13 @@ const deleteMouvement = (mouvementId: number) => {
 const messageMotif = computed(() => {
   switch(motif.value) {
     case 'remise_banque':
-      return 'Remise d\espece en banque : cet saisie va générer deux écritures ci-dessous en comptabilité générale ';
+      return 'REMISE D\'ESPECES EN BANQUE : Cet saisie va générer deux écritures ci-dessous en comptabilité générale. ';
     case 'sortie_achat':
-      return 'Sortie pour achat : utilisation d\'espèces pour un achat';
+      return 'SORTIE D\'ESPECES POUR ACHAT DIVERS : Cette saisie ne générera aucune écriture en comptabilité générale : Conservez les pièces d\achat et effectuez les saisies comptables dans votre logiciel comptable. Si cette somme n\est pas entièrement utilisée, n\omettez pas de réintégrer le reste. (retour d\espèces en caisse)';
     case 'retour_achat':
-      return 'Retour après achat : remboursement en espèces suite à un retour';
+      return 'RETOUR D\'ESPECES EN CAISSE APRES ACHAT  : Vous avez sorti des espèces pour achats divers et vous réintegrez un reste non utilisé. Aucune écriture comptable n\est nécessaire.';
     case 'entree_banque':
-      return 'Entrée depuis banque : retrait d\'espèces du compte bancaire';
+      return 'ENTREE D\'ESPECE DEPUIS LA BANQUE : Cette saisie va générer deux écritures ci-dessous en comptabilité générale. ';
     default:
       return '';
   }

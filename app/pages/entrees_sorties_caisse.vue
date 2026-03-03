@@ -69,6 +69,22 @@ const valider = () => {
 const deleteMouvement = (mouvementId: number) => {
   mouvements.value = mouvements.value.filter(mouvement => mouvement.id !== mouvementId);
 };
+
+
+const messageMotif = computed(() => {
+  switch(motif.value) {
+    case 'remise_banque':
+      return 'Remise d\espece en banque : cet saisie va générer deux écritures ci-dessous en comptabilité générale ';
+    case 'sortie_achat':
+      return 'Sortie pour achat : utilisation d\'espèces pour un achat';
+    case 'retour_achat':
+      return 'Retour après achat : remboursement en espèces suite à un retour';
+    case 'entree_banque':
+      return 'Entrée depuis banque : retrait d\'espèces du compte bancaire';
+    default:
+      return '';
+  }
+});
 </script>
 
 <template>
@@ -121,6 +137,9 @@ const deleteMouvement = (mouvementId: number) => {
             <input type="text" :value="soldeCaisseApres.toFixed(2) + ' €'" readonly class="border border-gray-400 px-3 py-2 rounded bg-gray-100 text-right flex-1"/>
           </div>
         </div>
+      </div>
+      <div v-if="messageMotif" class="bg-red-50 border border-red-200 rounded-lg p-4">
+           <p class="text-red-600 font-semibold">{{messageMotif}}</p>
       </div>
       <BaseCard variant="none" rounded="md" class="px-5 py-4 bg-white border-gray-300/50 flex flex-col w-full gap-2">
         <h2 class="text-black font-semibold text-xl mb-4">Historique des mouvements</h2>

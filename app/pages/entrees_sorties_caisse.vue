@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {ref, computed} from "vue";
 import Overlay from '../components/Overlay.vue'
-import calendarIcon from '../public/icons/calendar.png';
+
 
 const today = new Date();
 const formattedDate = today.toISOString().split('T')[0];
@@ -54,17 +54,17 @@ const soldeCaisseApres = computed(() => {
 const valider = () => {
   const newMovement = {
     id: mouvements.value.length,
-    date: dateMovement.value,
+    date: dateMovement.value ?? formattedDate, // Utilise la date du jour si undefined
     valeur: valeurMovement.value.toFixed(2) + ' €',
     compte: motif.value === 'remise_banque' || motif.value === 'entree_banque' ? 'Banque' : 'Caisse',
     debitCredit: (motif.value === 'remise_banque' || motif.value === 'sortie_achat') ? 'Débit' : 'Crédit',
     journal: 'JV' + String(mouvements.value.length + 1).padStart(3, '0')
   };
 
-  mouvements.value.unshift(newMovement);
   soldeCaisseAvant.value = soldeCaisseApres.value;
   valeurMovement.value = 0.00;
 };
+
 
 const deleteMouvement = (mouvementId: number) => {
   mouvements.value = mouvements.value.filter(mouvement => mouvement.id !== mouvementId);
@@ -120,7 +120,7 @@ const messageMotif = computed(() => {
             <label class="font-semibold text-base whitespace-nowrap">Date du mouvement</label>
             <input type="date" v-model="dateMovement" class="border border-gray-400 px-3 py-2 rounded flex-1"/>
             <button class="bg-gray-300 hover:bg-gray-400 p-2 rounded">
-              <img :src="calendarIcon" alt="Calendrier" class="w-5 h-5" />
+              <img src="/icons/calendar.png" alt="Calendrier" class="w-5 h-5" />
             </button>
           </div>
           <div class="flex items-center gap-4">

@@ -2,6 +2,7 @@
 import {ref} from 'vue'
 
 const value = ref('')
+const isAuthenticated = ref(false);
 
 const props = defineProps<{
   isBurgerMenu: boolean
@@ -12,6 +13,11 @@ const emit = defineEmits<{ (e: 'update:isBurgerMenu', v: boolean): void }>()
 function toggleBurger() {
   emit('update:isBurgerMenu', !props.isBurgerMenu)
 }
+
+onMounted(() => {
+  const token = localStorage.getItem("authToken");
+  isAuthenticated.value = !!token;
+});
 </script>
 
 <template>
@@ -46,7 +52,7 @@ function toggleBurger() {
         </button>
         <template #content>
           <div class="p-4 gap-5 flex flex-col">
-            <div>
+            <div v-if="isAuthenticated">
               <p class="text-2xl text-gray-700 font-black text-center pb-2">User</p>
               <BaseButton size="md" variant="default"
                           class="w-full mt-2 justify-between bg-gray-100 rounded-md items-center">
@@ -57,6 +63,18 @@ function toggleBurger() {
                           class="w-full mt-2 justify-between bg-gray-100 rounded-md items-center">
                 <Icon name="solar:logout-2-bold" class="mr-2 size-5"/>
                 Se déconnecter
+              </BaseButton>
+            </div>
+            <div v-else>
+              <BaseButton size="md" variant="default"
+                          class="w-full mt-2 justify-between bg-gray-100 rounded-md items-center">
+                <Icon name="solar:login-2-bold" class="mr-2 size-5"/>
+                Se Connecter
+              </BaseButton>
+              <BaseButton size="md" variant="default"
+                          class="w-full mt-2 justify-between bg-gray-100 rounded-md items-center">
+                <Icon name="solar:user-plus-bold" class="mr-2 size-5"/>
+                S'inscrire
               </BaseButton>
             </div>
             <div class="bg-gray-300 w-full h-px"></div>
@@ -101,16 +119,6 @@ function toggleBurger() {
   background-color: #f5f5f5;
   border: none;
   padding: 8px 12px 8px 40px;
-}
-
-.search-icon {
-  width: 18px;
-  height: 18px;
-  color: #9ca3af;
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
 }
 
 .action-buttons {

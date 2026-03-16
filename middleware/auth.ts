@@ -23,3 +23,24 @@ export default defineNuxtRouteMiddleware((to, from) => {
         return navigateTo('/login');
     }
 });
+
+export function isAuthenticatedToken(): boolean {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+        try {
+            const decodedToken = jwtDecode(token);
+            const currentTime = Date.now() / 1000;
+
+            if (decodedToken.exp < currentTime) {
+                localStorage.removeItem('authToken');
+                return false;
+            }
+        } catch (error) {
+            // Handle token decoding error
+            localStorage.removeItem('authToken');
+            return true;
+        }
+        return true;
+    }
+    return false;
+}

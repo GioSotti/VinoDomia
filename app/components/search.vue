@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {ref} from 'vue'
+import {isAuthenticatedToken} from "~~/middleware/auth";
 
 const value = ref('')
 const isAuthenticated = ref(false);
@@ -15,8 +16,7 @@ function toggleBurger() {
 }
 
 onMounted(() => {
-  const token = localStorage.getItem("authToken");
-  isAuthenticated.value = !!token;
+  isAuthenticated.value = isAuthenticatedToken()
 });
 </script>
 

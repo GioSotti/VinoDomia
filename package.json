@@ -30,6 +30,6 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/pg": "^8.18.0",
     "bcrypt": "^6.0.0",
-    "prisma": "^6.19.2"
+    "prisma": "^7.4.2"
   }
 }

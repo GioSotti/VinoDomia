@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {ref} from 'vue'
+import {isAuthenticatedToken} from "~~/utils/authToken";
 
 const value = ref('')
 const isAuthenticated = ref(false);
@@ -15,9 +16,14 @@ function toggleBurger() {
 }
 
 onMounted(() => {
-  const token = localStorage.getItem("authToken");
-  isAuthenticated.value = !!token;
+  isAuthenticated.value = isAuthenticatedToken()
 });
+
+const logout = async () => {
+  localStorage.removeItem("authToken");
+  window.location.reload();
+};
+
 </script>
 
 <template>
@@ -59,14 +65,14 @@ onMounted(() => {
                 <Icon name="solar:settings-bold" class="mr-2 size-5"/>
                 Paramètres
               </BaseButton>
-              <BaseButton size="md" variant="default"
+              <BaseButton size="md" variant="default" @click="logout"
                           class="w-full mt-2 justify-between bg-gray-100 rounded-md items-center">
                 <Icon name="solar:logout-2-bold" class="mr-2 size-5"/>
                 Se déconnecter
               </BaseButton>
             </div>
             <div v-else>
-              <BaseButton size="md" variant="default"
+              <BaseButton size="md" variant="default" @click="navigateTo('/login')"
                           class="w-full mt-2 justify-between bg-gray-100 rounded-md items-center">
                 <Icon name="solar:login-2-bold" class="mr-2 size-5"/>
                 Se Connecter

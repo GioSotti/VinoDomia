@@ -2,6 +2,10 @@
 import {ref} from "vue";
 import Overlay from '../components/Overlay.vue'
 
+definePageMeta({
+  middleware: "auth",
+});
+
 const fournisseurs = ref([
   {
     id: 0,

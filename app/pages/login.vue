@@ -97,15 +97,6 @@ const onSubmit = async () => {
             />
           </div>
 
-          <label class="flex items-center gap-2.5 cursor-pointer">
-            <input
-                v-model="rememberMe"
-                type="checkbox"
-                class="w-4 h-4 border border-gray-400 rounded cursor-pointer"
-            />
-            <span class="text-sm text-gray-700">Se souvenir de moi</span>
-          </label>
-
           <p v-if="errorMessage" class="text-sm text-red-600">{{ errorMessage }}</p>
           <button
               type="submit"

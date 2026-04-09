@@ -22,3 +22,32 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Client {
+  id          Int      @id @default(autoincrement())
+  civility    String
+  name        String
+  phone1      String?
+  phone2      String?
+  email       String   @unique
+  zipCode     String
+  city        String
+  subdivision String
+  country     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Products {
+  id Int @id @default(autoincrement())
+  ref String
+  family String
+  supplier String
+  name String
+  priceWithoutTax Float
+  tax Float
+  barCode String
+  internalBarCode String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

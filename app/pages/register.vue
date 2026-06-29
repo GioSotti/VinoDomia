@@ -14,6 +14,7 @@ type RegisterResponse = {
 const name = ref("");
 const email = ref("");
 const password = ref("");
+const confirmPassword = ref("");
 const isSubmitting = ref(false);
 const rememberMe = ref(false);
 const isLoading = ref(false);
@@ -30,6 +31,10 @@ const onSubmit = async () => {
 
   if (!email.value || !password.value || !name.value) {
     errorMessage.value = "Veuillez renseigner votre email et votre mot de passe.";
+    return;
+  }
+  if (password.value != confirmPassword.value) {
+    errorMessage.value = "Les deux mot de passes ne sont pas identiques.";
     return;
   }
 
@@ -115,8 +120,8 @@ const onSubmit = async () => {
           <div class="flex flex-col gap-2">
             <label for="password" class="font-semibold text-sm text-gray-700">Confirmer le mot de passe</label>
             <input
-                id="password"
-                v-model="password"
+                id="confirmPassword"
+                v-model="confirmPassword"
                 type="password"
                 placeholder="••••••••"
                 required

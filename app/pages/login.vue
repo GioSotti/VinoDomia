@@ -123,6 +123,12 @@ const onSubmit = async () => {
             <a href="#" class="text-gray-800 hover:text-gray-600 font-semibold transition-colors">Contacter le
               support</a>
           </p>
+          <p class="text-xs text-gray-600">
+            Vous n'avez pas de compte ?
+            <a href="/register" class="text-sm text-gray-600 hover:text-gray-800 transition-colors font-medium">
+                Inscrivez vous
+            </a>
+          </p>
         </div>
       </div>
 

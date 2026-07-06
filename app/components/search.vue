@@ -77,7 +77,7 @@ const logout = async () => {
                 <Icon name="solar:login-2-bold" class="mr-2 size-5"/>
                 Se Connecter
               </BaseButton>
-              <BaseButton size="md" variant="default"
+              <BaseButton size="md" variant="default" @click="navigateTo('/register')"
                           class="w-full mt-2 justify-between bg-gray-100 rounded-md items-center">
                 <Icon name="solar:user-plus-bold" class="mr-2 size-5"/>
                 S'inscrire

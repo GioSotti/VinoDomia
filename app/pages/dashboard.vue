@@ -1,9 +1,14 @@
 <script setup lang="ts">
+import {isAuthenticatedToken} from "~~/utils/authToken";
 
 const name = ref("SCEA Château Montfin");
 const unpayedBillsAmount = ref(153);
 const tarifsUpdated = ref(31);
 const ordersAmount = ref(20);
+
+definePageMeta({
+  middleware: "auth",
+});
 
 const ongoingActivities = ref([{
   id: 0,

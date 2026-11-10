@@ -1,0 +1,25 @@
+# Base de données PostgreSQL locale pour le développement.
+# Démarrer :  pnpm db:up      (ou docker compose up -d)
+# Arrêter :   pnpm db:down    (ou docker compose down)
+# Les données sont conservées dans le volume "vinodomia-db-data".
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: vinodomia-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vinodomia
+      POSTGRES_PASSWORD: vinodomia
+      POSTGRES_DB: vinodomia
+    ports:
+      - "5432:5432"
+    volumes:
+      - vinodomia-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vinodomia -d vinodomia"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  vinodomia-db-data:

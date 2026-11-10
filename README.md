@@ -95,6 +95,62 @@ pnpm build     # Build de production
 pnpm preview   # Prévisualiser le build en local
 ```
 
+## 🏷️ Versions & releases
+
+Les versions sont publiées **uniquement via un tag Git**. Un push sur `main` ou `develop` ne publie rien : il lance seulement la CI (lint et tests).
+
+### Publier une version
+
+```bash
+git tag -a v1.2.0 -m "Description de la version"
+git push origin v1.2.0
+```
+
+> 💡 Le message du tag (`-m`) apparaît en tête de la release. Utilise toujours un tag **annoté** (`-a`), et ne crée pas la release à la main depuis GitHub : le workflow s'en occupe.
+
+### Ce qui se passe ensuite
+
+Le workflow [`release.yml`](.github/workflows/release.yml) enchaîne trois étapes :
+
+| # | Étape | Résultat |
+|---|---|---|
+| 1 | **CI** | Lint et tests unitaires. En cas d'échec, rien n'est publié |
+| 2 | **Image Docker** | Construite et poussée sur le GitHub Container Registry (GHCR) |
+| 3 | **Release GitHub** | Description du tag, notes générées (PR et commits depuis la version précédente) et code source en `.zip` / `.tar.gz` |
+
+### Tags de l'image Docker
+
+Pour la version `v1.2.0`, l'image est publiée sous plusieurs tags :
+
+| Tag | Pointe vers |
+|---|---|
+| `ghcr.io/giosotti/vinodomia:1.2.0` | cette version exacte, ne change jamais |
+| `ghcr.io/giosotti/vinodomia:1.2` | le dernier patch de la 1.2 |
+| `ghcr.io/giosotti/vinodomia:1` | la dernière 1.x |
+| `ghcr.io/giosotti/vinodomia:latest` | la dernière version stable |
+
+Un tag avec suffixe, par exemple `v1.2.0-beta.1`, crée une **pré-release** et ne modifie pas `latest`.
+
+### Numérotation (semver)
+
+Format `vMAJEUR.MINEUR.PATCH` :
+
+- **MAJEUR** : changement incompatible (ex. `v1.4.2` → `v2.0.0`)
+- **MINEUR** : nouvelle fonctionnalité (ex. `v1.4.2` → `v1.5.0`)
+- **PATCH** : correctif (ex. `v1.4.2` → `v1.4.3`)
+
+### Récupérer et lancer une version
+
+L'image a la même visibilité que le repo : si le repo est privé, il faut y avoir accès.
+
+```bash
+# Connexion au registre (token GitHub avec le droit read:packages)
+echo <TOKEN> | docker login ghcr.io -u <utilisateur-github> --password-stdin
+
+docker pull ghcr.io/giosotti/vinodomia:1.2.0
+docker run -p 3000:3000 -e DATABASE_URL="postgresql://..." ghcr.io/giosotti/vinodomia:1.2.0
+```
+
 ---
 
 <div align="center">

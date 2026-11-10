@@ -6,8 +6,15 @@
 .cache
 dist
 
+# VsCode
+.vscode
+.vscode/*
+
 # Node dependencies
 node_modules
+pnpm-lock.yaml
+pnpm-workspace.yaml
+package-lock.json
 
 # Logs
 logs

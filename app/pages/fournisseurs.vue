@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {ref} from "vue";
-import Overlay from '../components/Overlay.vue'
 
 definePageMeta({
   middleware: "auth",
@@ -88,7 +87,7 @@ const saveFournisseur = () => {
 </script>
 
 <template>
-<Overlay :focus-pages="0" :focus-under-page="1">
+<AppOverlay :focus-pages="0" :focus-under-page="1">
   <div class="flex flex-col w-full p-8 gap-5 h-full">
     <h1 class="text-black font-bold text-3xl">Sélection d'un fournisseur</h1>
     <BaseCard variant="none" rounded="md" class="px-5 py-4 bg-white border-gray-300/50 flex flex-col w-full h-[600px] gap-2">
@@ -141,7 +140,7 @@ const saveFournisseur = () => {
       </div>
     </BaseCard>
   </div>
-  <Modal :is-visible="modalCreationFournisseur" @close-modal="closeModal" @save-modal="saveFournisseur" save-label="Sauvegarder" cancel-label="Annuler">
+  <AppModal :is-visible="modalCreationFournisseur" @close-modal="closeModal" @save-modal="saveFournisseur" save-label="Sauvegarder" cancel-label="Annuler">
     <div class="flex flex-col w-full h-140 gap-4 overflow-auto px-4 py-2">
       <h2 class="text-black font-bold text-2xl mb-4">Modifier</h2>
       <div class="flex flex-col gap-4 text-black">
@@ -161,8 +160,8 @@ const saveFournisseur = () => {
         </div>
       </div>
     </div>
-  </Modal>
-</Overlay>
+  </AppModal>
+</AppOverlay>
 </template>
 
 <style scoped>

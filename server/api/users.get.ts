@@ -1,5 +1,3 @@
-import { prisma } from '../utils/prisma';
+import { findAllUsers } from '../services/user.service'
 
-export default defineEventHandler(async () => {
-  return prisma.user.findMany();
-});
+export default defineEventHandler(() => findAllUsers())

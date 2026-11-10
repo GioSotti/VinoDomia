@@ -1,60 +1,18 @@
-import {prisma} from '../../utils/prisma';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import { register } from '../../services/auth.service'
+import type { AuthResponse, RegisterPayload } from '#shared/types/auth'
 
-const JWT_SECRET = 'your_token';
+export default defineEventHandler(async (event): Promise<AuthResponse> => {
+  const { email, password, name } = await readBody<Partial<RegisterPayload>>(event)
 
-export default defineEventHandler(async (event) => {
-    const {email, password, name} = await readBody(event);
+  if (!email || !password || !name) {
+    return { statusCode: 400, body: { success: false, message: 'Email, password and name are required' } }
+  }
 
-    const user = await prisma.user.findUnique({
-        where: {email: email}
-    });
+  const result = await register({ email, password, name })
 
-    if (user) {
-        return {statusCode: 401, body: {success: false, message: 'User already exists'}};
-    }
+  if (!result.success) {
+    return { statusCode: 401, body: { success: false, message: 'User already exists' } }
+  }
 
-    await prisma.user.create({
-        data: {
-            email: email,
-            password: await bcrypt.hash(password, 10),
-            name: name,
-            role: 0,
-        }
-    })
-    const createdUser = await prisma.user.findUnique({
-        where: {email: email},
-    });
-
-    if (createdUser == null) {
-        return {statusCode: 401, body: {success: false, message: 'User creation failed'}};
-    }
-
-
-    try {
-        const token = jwt.sign(
-            {id: createdUser.id, email: createdUser.email},
-            JWT_SECRET,
-            {expiresIn: '24h'}
-        );
-        return {
-            statusCode: 200,
-            body: {
-                success: true,
-                message: 'Register successful',
-                token
-            }
-        };
-    } catch (error) {
-        console.error('Error generating token:', error);
-        return {
-            statusCode: 500,
-            body: {
-                success: false,
-                message: 'Internal server error',
-            }
-        };
-    }
-});
-
+  return { statusCode: 200, body: { success: true, message: 'Register successful', token: result.token } }
+})

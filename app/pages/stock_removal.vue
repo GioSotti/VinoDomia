@@ -105,7 +105,7 @@ const reasons = ref([
 </script>
 
 <template>
-  <Overlay :focus-page="1" :focus-under-page="1">
+  <AppOverlay :focus-page="1" :focus-under-page="1">
     <!-- Page content -->
     <div class="flex flex-col w-full p-8 gap-5 h-full">
       <h1 class="text-black font-bold text-3xl">Sortie de stock</h1>
@@ -170,7 +170,7 @@ const reasons = ref([
             <div class="w-full h-px bg-gray-300" :class="{ 'hidden': key === stockElements.length-1 }"></div>
           </div>
         </div>
-        <Modal :is-visible="modalCreationStockRemoval" @close-modal="closeModal" @save-modal="saveStockRemoval" save-label="Sauvegarder" cancel-label="Annuler">
+        <AppModal :is-visible="modalCreationStockRemoval" @close-modal="closeModal" @save-modal="saveStockRemoval" save-label="Sauvegarder" cancel-label="Annuler">
           <div class="flex flex-col w-full h-full gap-4 overflow-auto px-4 py-2">
             <!-- Modal content -->
             <h2 class="text-black font-bold text-2xl mb-4">Créer / modifier une nouvelle sortie de stock</h2>
@@ -236,10 +236,10 @@ const reasons = ref([
               </div>
             </div>
           </div>
-        </Modal>
+        </AppModal>
       </BaseCard>
     </div>
-  </Overlay>
+  </AppOverlay>
 </template>
 
 <style scoped>

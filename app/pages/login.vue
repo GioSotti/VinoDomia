@@ -1,15 +1,7 @@
 <script setup lang="ts">
-import {ref, onMounted} from "vue";
-import {isAuthenticatedToken} from "~~/utils/authToken";
+import type {AuthResponse} from "#shared/types/auth";
 
-type LoginResponse = {
-  statusCode: number;
-  body?: {
-    success?: boolean;
-    message?: string;
-    token?: string;
-  };
-};
+const {isAuthenticated, saveToken} = useAuth();
 
 const email = ref("");
 const password = ref("");
@@ -19,7 +11,7 @@ const isLoading = ref(false);
 const errorMessage = ref("");
 
 onMounted(async () => {
-  if (isAuthenticatedToken()) {
+  if (isAuthenticated()) {
     await navigateTo("/dashboard");
   }
 });
@@ -35,7 +27,7 @@ const onSubmit = async () => {
   isSubmitting.value = true;
 
   try {
-    const response = await $fetch<LoginResponse>("/api/auth/login", {
+    const response = await $fetch<AuthResponse>("/api/auth/login", {
       method: "POST",
       body: {
         email: email.value,
@@ -48,7 +40,7 @@ const onSubmit = async () => {
       return;
     }
 
-    localStorage.setItem("authToken", response.body.token);
+    saveToken(response.body.token);
     await navigateTo("/dashboard");
   } catch {
     errorMessage.value = "Une erreur est survenue. Veuillez reessayer.";

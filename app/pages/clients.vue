@@ -165,7 +165,7 @@ const saveClient = () => {
 </script>
 
 <template>
-  <Overlay :focus-page="0" :focus-under-page="1">
+  <AppOverlay :focus-page="0" :focus-under-page="1">
     <div class="flex flex-col w-full p-8 gap-5 h-full">
       <h1 class="text-black font-bold text-3xl">Clients enregistrés</h1>
       <BaseCard variant="none" rounded="md"
@@ -218,7 +218,7 @@ const saveClient = () => {
         </div>
       </BaseCard>
     </div>
-    <Modal :is-visible="modalCreationClient" @close-modal="closeModal" @save-modal="saveClient">
+    <AppModal :is-visible="modalCreationClient" @close-modal="closeModal" @save-modal="saveClient">
       <div class="flex flex-col w-full h-140 gap-4 overflow-auto px-4 py-2">
         <h2 class="text-black font-bold text-2xl mb-4">Créer un nouveau client</h2>
         <div class="flex flex-col gap-4 text-black">
@@ -278,8 +278,8 @@ const saveClient = () => {
           </div>
         </div>
       </div>
-    </Modal>
-  </Overlay>
+    </AppModal>
+  </AppOverlay>
 </template>
 
 <style scoped>

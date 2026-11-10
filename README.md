@@ -74,19 +74,30 @@ PostgreSQL tourne en local dans Docker (`localhost:5432`, identifiants `vinodomi
 
 ## 📁 Structure
 
+Un seul projet Nuxt full-stack : `app/` est le **front**, `server/` est l'**API**, `shared/` contient ce qui sert aux deux.
+
 ```
 VinoDomia/
-├── app/
-│   ├── pages/          # Pages de l'application (une par module)
-│   └── generated/      # Client Prisma (généré, non versionné)
-├── components/         # Composants Vue réutilisables
-├── server/
-│   ├── api/            # Routes API (auth, ...)
-│   └── utils/          # Client Prisma partagé
+├── app/                    # 🎨 Front
+│   ├── components/         # Composants réutilisables (préfixe App*)
+│   ├── composables/        # Logique réutilisable (useAuth...)
+│   ├── middleware/         # Garde de navigation (auth)
+│   ├── pages/              # Une page = une route
+│   ├── utils/              # Fonctions utilitaires
+│   └── generated/          # Client Prisma (généré, non versionné)
+├── server/                 # ⚙️ API
+│   ├── api/                # Routes HTTP : lisent la requête, appellent un service, répondent
+│   ├── services/           # Logique métier (auth, users...), sans dépendance à Nuxt
+│   └── utils/              # Client Prisma, JWT
+├── shared/
+│   └── types/              # Types communs front / API
 ├── prisma/
-│   └── schema.prisma   # Modèles de données
-└── docker-compose.yaml # Base PostgreSQL locale
+│   └── schema.prisma       # Modèles de données
+├── tests/unit/             # Tests Vitest
+└── docker-compose.yaml     # Base PostgreSQL locale
 ```
+
+> 💡 **Ajouter une fonctionnalité côté API :** la logique va dans `server/services/xxx.service.ts` (testable sans base de données), et la route dans `server/api/` se contente de l'appeler.
 
 ## 📦 Production
 
@@ -148,7 +159,10 @@ L'image a la même visibilité que le repo : si le repo est privé, il faut y av
 echo <TOKEN> | docker login ghcr.io -u <utilisateur-github> --password-stdin
 
 docker pull ghcr.io/giosotti/vinodomia:1.2.0
-docker run -p 3000:3000 -e DATABASE_URL="postgresql://..." ghcr.io/giosotti/vinodomia:1.2.0
+docker run -p 3000:3000 \
+  -e DATABASE_URL="postgresql://..." \
+  -e NUXT_JWT_SECRET="$(openssl rand -hex 32)" \
+  ghcr.io/giosotti/vinodomia:1.2.0
 ```
 
 ---

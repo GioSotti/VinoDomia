@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {ref} from "vue";
-import Overlay from '../components/Overlay.vue'
 
 const tarifs = ref([
   {
@@ -112,7 +111,7 @@ const saveTarif = () => {
 </script>
 
 <template>
-  <Overlay :focus-page="0" :focus-under-page="1">
+  <AppOverlay :focus-page="0" :focus-under-page="1">
   <div class="flex flex-col w-full p-8 gap-5 h-full">
       <h1 class="text-black font-bold text-3xl">Consultation des tarifs</h1>
       <BaseCard variant="none" rounded="md"
@@ -177,7 +176,7 @@ const saveTarif = () => {
         </div>
       </BaseCard>
   </div>
-    <Modal :is-visible="modalCreationTarif" @close-modal="closeModal" @save-modal="saveTarif" save-label="Sauvegarder" cancel-label="Annuler">
+    <AppModal :is-visible="modalCreationTarif" @close-modal="closeModal" @save-modal="saveTarif" save-label="Sauvegarder" cancel-label="Annuler">
       <div class="flex flex-col w-full h-140 gap-4 overflow-auto px-4 py-2">
         <h2 class="text-black font-bold text-2xl mb-4">Modifier</h2>
         <div class="flex flex-col gap-4 text-black">
@@ -220,8 +219,8 @@ const saveTarif = () => {
             </div>
           </div>
         </div></div>
-    </Modal>
-  </Overlay>
+    </AppModal>
+  </AppOverlay>
 </template>
 
 <style scoped>

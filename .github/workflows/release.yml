@@ -89,7 +89,7 @@ jobs:
             echo
             echo '```bash'
             echo "docker pull $IMAGE:$VERSION"
-            echo "docker run -p 3000:3000 -e DATABASE_URL=postgresql://... $IMAGE:$VERSION"
+            echo "docker run -p 3000:3000 -e DATABASE_URL=postgresql://... -e NUXT_JWT_SECRET=... $IMAGE:$VERSION"
             echo '```'
             echo
           } > notes.md

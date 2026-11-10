@@ -155,7 +155,7 @@ const fields = reactive({
 </script>
 
 <template>
-  <Overlay :focus-page="0" :focus-under-page="3">
+  <AppOverlay :focus-page="0" :focus-under-page="3">
     <!-- Page content -->
     <div class="flex flex-col w-full p-8 gap-5 h-full">
       <h1 class="text-black font-bold text-3xl">Produits</h1>
@@ -243,7 +243,7 @@ const fields = reactive({
             <div class="w-full h-px bg-gray-300" :class="{ 'hidden': key === products.length-1 }"></div>
           </div>
         </div>
-        <Modal :is-visible="modalCreationProduct" @close-modal="closeModal" @save-modal="saveProduct">
+        <AppModal :is-visible="modalCreationProduct" @close-modal="closeModal" @save-modal="saveProduct">
           <div class="flex flex-col w-full h-full gap-4 overflow-auto px-4 py-2">
             <!-- Modal content -->
             <h2 class="text-black font-bold text-2xl mb-4">Créer / modifier un nouveau produit</h2>
@@ -312,10 +312,10 @@ const fields = reactive({
           </div>
           <!-- Modal actions (need to be implemented) -->
           <BaseButton class="w-full">Imprimer</BaseButton>
-        </Modal>
+        </AppModal>
       </BaseCard>
     </div>
-  </Overlay>
+  </AppOverlay>
 </template>
 
 <style scoped>

@@ -1,38 +1,18 @@
-import { prisma } from '../../utils/prisma';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import { login } from '../../services/auth.service'
+import type { AuthResponse, LoginPayload } from '#shared/types/auth'
 
-const JWT_SECRET = 'your_token';
+export default defineEventHandler(async (event): Promise<AuthResponse> => {
+  const { email, password } = await readBody<Partial<LoginPayload>>(event)
 
-export default defineEventHandler(async (event) => {
-    const {email, password} = await readBody(event);
+  if (!email || !password) {
+    return { statusCode: 400, body: { success: false, message: 'Email and password are required' } }
+  }
 
-    const user = await prisma.user.findUnique({
-        where: {email: email}
-    });
+  const result = await login({ email, password })
 
-    if (!user) {
-        return {statusCode: 401, body: {success: false, message: 'Invalid email or password'}};
-    }
+  if (!result.success) {
+    return { statusCode: 401, body: { success: false, message: 'Invalid email or password' } }
+  }
 
-    const validPassword = await bcrypt.compare(password, user.password);
-
-    if (!validPassword) {
-        return {statusCode: 401, body: {success: false, message: 'Invalid email or password'}};
-    }
-
-    const token = jwt.sign(
-        {id: user.id, email: user.email},
-        JWT_SECRET,
-        {expiresIn: '24h'}
-    );
-
-    return {
-        statusCode: 200,
-        body: {
-            success: true,
-            message: 'Login successful',
-            token
-        }
-    };
-});
+  return { statusCode: 200, body: { success: true, message: 'Login successful', token: result.token } }
+})

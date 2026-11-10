@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type {TableColumn} from "~/utils/table";
 
 const users = [
   {
@@ -9,7 +10,7 @@ const users = [
     civility: "M.",
     postCode: "75001",
     city: "Paris",
-    subdivition: "Île-de-France",
+    subdivision: "Île-de-France",
     country: "France",
   },
   {
@@ -20,7 +21,7 @@ const users = [
     civility: "Mme.",
     postCode: "69001",
     city: "Lyon",
-    subdivition: "Auvergne-Rhône-Alpes",
+    subdivision: "Auvergne-Rhône-Alpes",
     country: "France",
   },
   {
@@ -31,7 +32,7 @@ const users = [
     civility: "M.",
     postCode: "13001",
     city: "Marseille",
-    subdivition: "Provence-Alpes-Côte d'Azur",
+    subdivision: "Provence-Alpes-Côte d'Azur",
     country: "France",
   },
   {
@@ -42,7 +43,7 @@ const users = [
     civility: "M.",
     postCode: "31000",
     city: "Toulouse",
-    subdivition: "Occitanie",
+    subdivision: "Occitanie",
     country: "France",
   },
   {
@@ -53,8 +54,18 @@ const users = [
     civility: "Mme.",
     postCode: "44000",
     city: "Nantes",
+    subdivision: "Pays de la Loire",
+    country: "France",
   }
 ];
+
+const columns: TableColumn[] = [
+  {key: "name", label: "Client"},
+  {key: "city", label: "Localisation", hideBelow: "md"},
+  {key: "email", label: "Email", hideBelow: "lg"},
+];
+
+const licenceKey = ref("");
 
 
 const versions = [
@@ -68,88 +79,69 @@ const versions = [
 </script>
 
 <template>
-  <AppOverlay :focus-page="3" :focus-under-page="0">
-    <div>
-      <div class="flex flex-col w-full p-8 gap-2 h-full">
-        <div class="flex flex-row flex-wrap w-full text-black font-bold text-3xl items-center justify-between gap-2">
-          <h1>Maintenance & Service</h1>
-        </div>
-        <BaseTabs
-            class="w-full"
-            default-value="system"
-            variant="primary"
-            :tabs="[{ label: 'Système', value: 'system' }, { label: 'Clients', value: 'clients' }, { label: 'Sauvegardes', value: 'saves' }, { label: 'Logs', value: 'logs' }]">
-          <BaseTabsContent value="system">
-            <BaseCard class="w-full h-full p-4 flex flex-col gap-3">
-              <h2 class="font-bold text-black">
-                Version</h2>
-              <div class="max-w-2/3">
-                <BaseSelect placeholder="Sélectionner une version">
-                  <BaseSelectItem v-for="item in versions" :key="item" :value="item">
-                    {{ item }}
-                  </BaseSelectItem>
-                </BaseSelect>
-              </div>
+  <AppOverlay>
+    <AppPage eyebrow="Administration" title="Maintenance & service">
+      <BaseTabs
+          class="w-full"
+          default-value="system"
+          variant="primary"
+          :tabs="[{ label: 'Système', value: 'system' }, { label: 'Clients', value: 'clients' }, { label: 'Sauvegardes', value: 'saves' }, { label: 'Logs', value: 'logs' }]">
+        <BaseTabsContent value="system">
+          <section class="mt-4 grid gap-6 rounded-[14px] border border-lin bg-papier p-5 text-encre sm:p-6 lg:grid-cols-2">
+            <div class="flex flex-col gap-3">
+              <h2 class="m-0 font-serif text-[22px] font-normal">Version</h2>
+              <p class="m-0 text-[15px] text-taupe">Version du logiciel installée sur ce poste.</p>
+              <BaseSelect placeholder="Sélectionner une version">
+                <BaseSelectItem v-for="item in versions" :key="item" :value="item">{{ item }}</BaseSelectItem>
+              </BaseSelect>
+            </div>
+            <div class="flex flex-col gap-3">
+              <h2 class="m-0 font-serif text-[22px] font-normal">Clé de licence</h2>
+              <p class="m-0 text-[15px] text-taupe">Licence nécessaire pour utiliser le logiciel.</p>
+              <BaseInput v-model="licenceKey" rounded="md" placeholder="XXXX - XXXX - XXXX - XXXX - XXXX" aria-label="Clé de licence"/>
               <div>
-                <h2 class="font-bold text-black">Licence Key</h2>
-                <h3>Licence pour utiliser le logiciel</h3>
+                <AppBadge tone="succes">Licence activée</AppBadge>
               </div>
-              <BaseInput rounded="md" placeholder="XXXX - XXXX - XXXX - XXXX - XXXX" class="max-w-2/3"/>
-              <div class="flex flex-row items-center gap-2">
-                <Icon name="lets-icons:check-fill" class="bg-green-500 size-5"/>
-                <h3 class="text-sm">Status Activation</h3>
-              </div>
-            </BaseCard>
-          </BaseTabsContent>
-          <BaseTabsContent value="clients">
-            <BaseCard variant="none" rounded="md"
-                      class="px-5 py-4 bg-white border border-gray-300/50 flex flex-col w-full h-90 gap-2">
-              <h2 class="text-black text-xl font-bold pb-6 shrink-0">Clients enregistrés</h2>
-
-              <div class="flex flex-col w-full gap-3 overflow-y-auto flex-1">
-                <div v-for="(user, key) in users" :key="key" class="flex flex-col w-full gap-3">
-                  <div class="flex flex-row w-full gap-2 items-center justify-between pr-2">
-                    <div class="flex flex-row items-center gap-2">
-                      <div class="flex flex-col">
-                        <h3 class="text-black font-semibold">{{ user.name }}</h3>
-                        <h4 class="text-gray-500">
-                          {{ user.postCode + ", " + user.city + ", " + user.subdivision + ", " + user.country }}</h4>
-                      </div>
-                    </div>
-                    <div class="flex flex-row gap-4 items-center">
-                      <div class="flex-col text-align text-right">
-                        <h3 class="text-black font-semibold">
-                          {{ "phone 1 : " + user.phone1 + " or phone 2 : " + user.phone2 }}</h3>
-                        <h3 class="text-gray-500">{{ user.email }}</h3>
-                      </div>
-                      <BaseButton>
-                        <Icon name="ic:baseline-edit" class="size-5"/>
-                      </BaseButton>
-                      <BaseButton>
-                        <Icon name="ic:round-delete" class="size-5 bg-red-500"/>
-                      </BaseButton>
-                    </div>
-                  </div>
-                  <div class="w-full h-px bg-gray-300"
-                       :class="{ 'hidden': key === users.length-1, 'block' : key !== users.length-1 }"></div>
+            </div>
+          </section>
+        </BaseTabsContent>
+        <BaseTabsContent value="clients">
+          <div class="mt-4">
+            <AppTable :columns="columns" :rows="users" :row-key="u => u.email + u.name"
+                      :count-label="['client', 'clients']">
+              <template #cell-name="{ row }">
+                <div class="flex flex-col">
+                  <span class="font-medium">{{ row.civility }} {{ row.name }}</span>
+                  <span class="text-[13px] tabular-nums text-taupe">{{ row.phone1 }}</span>
                 </div>
-              </div>
-            </BaseCard>
-          </BaseTabsContent>
-          <BaseTabsContent value="saves">
-            <BaseCard class="w-full h-full">
-
-            </BaseCard>
-          </BaseTabsContent>
-          <BaseTabsContent value="logs">
-            <BaseCard class="w-full h-full">
-
-            </BaseCard>
-          </BaseTabsContent>
-        </BaseTabs>
-      </div>
-    </div>
+              </template>
+              <template #cell-city="{ row }">
+                <div class="flex flex-col">
+                  <span>{{ row.postCode }} {{ row.city }}</span>
+                  <span class="text-[13px] text-taupe">{{ row.subdivision }}, {{ row.country }}</span>
+                </div>
+              </template>
+              <template #cell-email="{ row }">
+                <span class="text-brun">{{ row.email }}</span>
+              </template>
+              <template #actions>
+                <AppIconButton icon="pencil" label="Modifier"/>
+                <AppIconButton icon="trash" label="Supprimer" tone="danger"/>
+              </template>
+            </AppTable>
+          </div>
+        </BaseTabsContent>
+        <BaseTabsContent value="saves">
+          <p class="mt-4 rounded-[14px] border border-dashed border-grege bg-papier p-7 text-[15px] text-taupe">
+            Aucune sauvegarde pour l'instant.
+          </p>
+        </BaseTabsContent>
+        <BaseTabsContent value="logs">
+          <p class="mt-4 rounded-[14px] border border-dashed border-grege bg-papier p-7 text-[15px] text-taupe">
+            Aucun log à afficher.
+          </p>
+        </BaseTabsContent>
+      </BaseTabs>
+    </AppPage>
   </AppOverlay>
 </template>
-<style scoped>
-</style>

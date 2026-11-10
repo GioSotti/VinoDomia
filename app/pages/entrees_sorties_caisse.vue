@@ -1,183 +1,145 @@
 <script setup lang="ts">
-import {ref, computed} from "vue";
+import type {TableColumn} from "~/utils/table";
 
+type Motif = "remise_banque" | "sortie_achat" | "retour_achat" | "entree_banque";
 
-const today = new Date();
-const formattedDate = today.toISOString().split('T')[0];
+const formattedDate = new Date().toISOString().split("T")[0];
 
-const motif = ref('remise_banque');
+const motif = ref<Motif>("remise_banque");
 const dateMovement = ref(formattedDate);
 const soldeCaisseAvant = ref(30.00);
 const valeurMovement = ref(0.00);
 
-const mouvements = ref([
+const MOTIFS: { value: Motif, label: string, message: string }[] = [
   {
-    id: 0,
-    date: "2024-01-15",
-    valeur: "500,00 €",
-    compte: "Caisse",
-    debitCredit: "Débit",
-    journal: "JV001"
+    value: "remise_banque",
+    label: "Remise en banque",
+    message: "Remise d'espèces en banque : cette saisie va générer deux écritures en comptabilité générale.",
   },
   {
-    id: 1,
-    date: "2024-01-10",
-    valeur: "200,00 €",
-    compte: "Banque",
-    debitCredit: "Crédit",
-    journal: "JV002"
-  }
+    value: "sortie_achat",
+    label: "Sortie pour achat",
+    message: "Sortie d'espèces pour achats divers : aucune écriture ne sera générée en comptabilité générale. Conservez les pièces d'achat et saisissez-les dans votre logiciel comptable. Si la somme n'est pas entièrement utilisée, pensez à réintégrer le reste (retour d'espèces en caisse).",
+  },
+  {
+    value: "retour_achat",
+    label: "Retour après achat",
+    message: "Retour d'espèces en caisse après achat : vous réintégrez un reste non utilisé. Aucune écriture comptable n'est nécessaire.",
+  },
+  {
+    value: "entree_banque",
+    label: "Entrée depuis la banque",
+    message: "Entrée d'espèces depuis la banque : cette saisie va générer deux écritures en comptabilité générale.",
+  },
+];
+
+const mouvements = ref([
+  {id: 0, date: "2024-01-15", valeur: 500, compte: "Caisse", debitCredit: "Débit", journal: "JV001"},
+  {id: 1, date: "2024-01-10", valeur: 200, compte: "Banque", debitCredit: "Crédit", journal: "JV002"},
 ]);
 
-const soldeCaisseApres = computed(() => {
-  let newSolde = soldeCaisseAvant.value;
+const isSortie = computed(() => motif.value === "remise_banque" || motif.value === "sortie_achat");
 
-  switch(motif.value) {
-    case 'remise_banque':
-      newSolde -= valeurMovement.value;
-      break;
-    case 'sortie_achat':
-      newSolde -= valeurMovement.value;
-      break;
-    case 'retour_achat':
-      newSolde += valeurMovement.value;
-      break;
-    case 'entree_banque':
-      newSolde += valeurMovement.value;
-      break;
-  }
+const soldeCaisseApres = computed(() =>
+    soldeCaisseAvant.value + (isSortie.value ? -valeurMovement.value : valeurMovement.value)
+);
 
-  return newSolde;
-});
+const messageMotif = computed(() => MOTIFS.find(m => m.value === motif.value)?.message ?? "");
 
 const valider = () => {
-  const newMovement = {
-    id: mouvements.value.length,
-    date: dateMovement.value ?? formattedDate, // Utilise la date du jour si undefined
-    valeur: valeurMovement.value.toFixed(2) + ' €',
-    compte: motif.value === 'remise_banque' || motif.value === 'entree_banque' ? 'Banque' : 'Caisse',
-    debitCredit: (motif.value === 'remise_banque' || motif.value === 'sortie_achat') ? 'Débit' : 'Crédit',
-    journal: 'JV' + String(mouvements.value.length + 1).padStart(3, '0')
-  };
-
+  if (!valeurMovement.value) return;
+  const nextId = Math.max(-1, ...mouvements.value.map(m => m.id)) + 1;
+  mouvements.value.unshift({
+    id: nextId,
+    date: dateMovement.value ?? formattedDate ?? "",
+    valeur: valeurMovement.value,
+    compte: motif.value === "remise_banque" || motif.value === "entree_banque" ? "Banque" : "Caisse",
+    debitCredit: isSortie.value ? "Débit" : "Crédit",
+    journal: "JV" + String(nextId + 1).padStart(3, "0"),
+  });
   soldeCaisseAvant.value = soldeCaisseApres.value;
   valeurMovement.value = 0.00;
 };
-
 
 const deleteMouvement = (mouvementId: number) => {
   mouvements.value = mouvements.value.filter(mouvement => mouvement.id !== mouvementId);
 };
 
-
-const messageMotif = computed(() => {
-  switch(motif.value) {
-    case 'remise_banque':
-      return 'REMISE D\'ESPECES EN BANQUE : Cet saisie va générer deux écritures ci-dessous en comptabilité générale. ';
-    case 'sortie_achat':
-      return 'SORTIE D\'ESPECES POUR ACHAT DIVERS : Cette saisie ne générera aucune écriture en comptabilité générale : Conservez les pièces d\achat et effectuez les saisies comptables dans votre logiciel comptable. Si cette somme n\est pas entièrement utilisée, n\omettez pas de réintégrer le reste. (retour d\espèces en caisse)';
-    case 'retour_achat':
-      return 'RETOUR D\'ESPECES EN CAISSE APRES ACHAT  : Vous avez sorti des espèces pour achats divers et vous réintegrez un reste non utilisé. Aucune écriture comptable n\est nécessaire.';
-    case 'entree_banque':
-      return 'ENTREE D\'ESPECE DEPUIS LA BANQUE : Cette saisie va générer deux écritures ci-dessous en comptabilité générale. ';
-    default:
-      return '';
-  }
-});
+const columns: TableColumn[] = [
+  {key: "journal", label: "N° journal"},
+  {key: "date", label: "Date"},
+  {key: "compte", label: "Compte"},
+  {key: "debitCredit", label: "D / C", hideBelow: "md"},
+  {key: "valeur", label: "Valeur", align: "right"},
+];
 </script>
 
 <template>
-  <AppOverlay :focus-pages="0" :focus-under-page="1">
-    <div class="flex flex-col w-full p-8 gap-5 h-full">
-      <h1 class="text-black font-bold text-3xl">Entrées / Sorties d'espèces</h1>
-      <div class="bg-gray-200 rounded-lg p-6 flex gap-8">
-        <!-- ... garde le formulaire existant ... -->
-        <div class="flex flex-col gap-3">
-          <h3 class="font-semibold text-lg mb-2">Motif :</h3>
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="radio" v-model="motif" value="remise_banque" class="w-4 h-4"/>
-            <span class="text-base">Remise en banque</span>
+  <AppOverlay>
+    <AppPage eyebrow="Vente" title="Entrées / sorties d'espèces">
+      <section class="grid gap-6 rounded-[14px] border border-lin bg-papier p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+        <fieldset class="m-0 flex flex-col gap-2 border-0 p-0">
+          <legend class="mb-3 text-xs font-medium uppercase tracking-[0.12em] text-taupe">Motif</legend>
+          <label v-for="m in MOTIFS" :key="m.value"
+                 class="flex min-h-11 cursor-pointer items-center gap-3 rounded-[10px] border px-3.5 text-[15px] transition-colors"
+                 :class="motif === m.value ? 'border-encre bg-sable font-medium' : 'border-lin hover:bg-ivoire'">
+            <input v-model="motif" type="radio" :value="m.value" class="size-4 accent-encre">
+            {{ m.label }}
           </label>
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="radio" v-model="motif" value="sortie_achat" class="w-4 h-4"/>
-            <span class="text-base">Sortie pour achat</span>
-          </label>
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="radio" v-model="motif" value="retour_achat" class="w-4 h-4"/>
-            <span class="text-base">Retour après achat</span>
-          </label>
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="radio" v-model="motif" value="entree_banque" class="w-4 h-4"/>
-            <span class="text-base">Entrée depuis banque</span>
-          </label>
-          <button @click="valider" class="mt-4 bg-gray-800 text-white py-3 px-8 rounded hover:bg-gray-700 transition-colors font-semibold">
-            Valider
-          </button>
-        </div>
-        <div class="flex flex-col gap-4 flex-1">
-          <div class="flex items-center gap-4">
-            <label class="font-semibold text-base whitespace-nowrap">Date du mouvement</label>
-            <input type="date" v-model="dateMovement" class="border border-gray-400 px-3 py-2 rounded flex-1"/>
-            <button class="bg-gray-300 hover:bg-gray-400 p-2 rounded">
-              <img src="/icons/calendar.png" alt="Calendrier" class="w-5 h-5" />
-            </button>
-          </div>
-          <div class="flex items-center gap-4">
-            <label class="font-semibold text-base w-48">Solde caisse avant</label>
-            <input type="text" :value="soldeCaisseAvant.toFixed(2) + ' €'" readonly class="border border-gray-400 px-3 py-2 rounded bg-gray-100 text-right flex-1"/>
-          </div>
-          <div class="flex items-center gap-4">
-            <label class="font-semibold text-base w-48">Valeur du mouvement</label>
-            <input type="number" v-model.number="valeurMovement" step="0.01" class="border border-gray-400 px-3 py-2 rounded text-right flex-1"/>
-            <span class="text-base">€</span>
-          </div>
-          <div class="flex items-center gap-4">
-            <label class="text-gray-500 text-base w-48">... après</label>
-            <input type="text" :value="soldeCaisseApres.toFixed(2) + ' €'" readonly class="border border-gray-400 px-3 py-2 rounded bg-gray-100 text-right flex-1"/>
-          </div>
-        </div>
-      </div>
-      <div v-if="messageMotif" class="bg-red-50 border border-red-200 rounded-lg p-4">
-           <p class="text-red-600 font-semibold">{{messageMotif}}</p>
-      </div>
-      <BaseCard variant="none" rounded="md" class="px-5 py-4 bg-white border-gray-300/50 flex flex-col w-full gap-2">
-        <h2 class="text-black font-semibold text-xl mb-4">Historique des mouvements</h2>
-        <span class="w-full h-0.5 bg-gray-300 mb-5"></span>
-        <div class="flex flex-col w-full gap-3 overflow-y-auto max-h-96">
-          <div v-for="(mouvement, key) in mouvements" :key="key" class="flex flex-col w-full gap-3">
-            <div class="flex flex-row w-full gap-6 items-center justify-start pr-2">
-              <div class="flex flex-row items-center gap-6">
-                <div class="flex flex-col w-28">
-                  <h4 class="text-gray-500 text-xs">Date</h4>
-                  <h3 class="text-black font-semibold">{{ mouvement.date }}</h3>
-                </div>
-                <div class="flex flex-col w-28">
-                  <h4 class="text-gray-500 text-xs">Valeur</h4>
-                  <h3 class="text-black font-semibold">{{ mouvement.valeur }}</h3>
-                </div>
-                <div class="flex flex-col w-32">
-                  <h4 class="text-gray-500 text-xs">Compte</h4>
-                  <h3 class="text-black">{{ mouvement.compte }}</h3>
-                </div>
-                <div class="flex flex-col w-20">
-                  <h4 class="text-gray-500 text-xs">D/C</h4>
-                  <h3 class="text-black">{{ mouvement.debitCredit }}</h3>
-                </div>
-                <div class="flex flex-col w-24">
-                  <h4 class="text-gray-500 text-xs">N° Journal</h4>
-                  <h3 class="text-black">{{ mouvement.journal }}</h3>
-                </div>
-                <div class="flex flex-row gap-2 items-center ml-4">
-                  <BaseButton @click="deleteMouvement(mouvement.id)">
-                    <Icon name="ic:round-delete" class="size-5 text-red-500"/>
-                  </BaseButton>
-                </div>
-              </div>
+        </fieldset>
+
+        <div class="flex flex-col gap-4">
+          <AppField label="Date du mouvement" for="date-mouvement">
+            <input id="date-mouvement" v-model="dateMovement" type="date"
+                   class="h-11 rounded-[10px] border border-lin bg-papier px-3.5 text-[15px] text-encre">
+          </AppField>
+          <div class="grid gap-4 sm:grid-cols-3">
+            <div class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-taupe-fonce">Solde avant</span>
+              <span class="flex h-11 items-center justify-end rounded-[10px] bg-ivoire px-3.5 tabular-nums">{{ formatEuro(soldeCaisseAvant) }}</span>
             </div>
-            <div class="w-full h-px bg-gray-300" :class="{ 'hidden': key === mouvements.length-1, 'block' : key !== mouvements.length-1 }"></div>
+            <AppField label="Valeur du mouvement" for="valeur-mouvement">
+              <input id="valeur-mouvement" v-model.number="valeurMovement" type="number" step="0.01" min="0"
+                     class="h-11 rounded-[10px] border border-lin bg-papier px-3.5 text-right text-[15px] tabular-nums text-encre">
+            </AppField>
+            <div class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-taupe-fonce">Solde après</span>
+              <span class="flex h-11 items-center justify-end rounded-[10px] bg-encre px-3.5 font-medium text-ivoire tabular-nums">{{ formatEuro(soldeCaisseApres) }}</span>
+            </div>
+          </div>
+          <p v-if="messageMotif" class="m-0 rounded-[10px] bg-attention-bg px-4 py-3 text-sm leading-relaxed text-attention">
+            {{ messageMotif }}
+          </p>
+          <div class="flex justify-end">
+            <AppButton icon="check" @click="valider">Valider le mouvement</AppButton>
           </div>
         </div>
-      </BaseCard>
-    </div>
+      </section>
+
+      <div class="flex flex-col gap-3">
+        <h2 class="m-0 font-serif text-[22px] font-normal">Historique des mouvements</h2>
+        <AppTable :columns="columns" :rows="mouvements" :row-key="m => m.id"
+                  :count-label="['mouvement', 'mouvements']" empty-label="Aucun mouvement enregistré.">
+          <template #cell-journal="{ row }">
+            <span class="text-[13px] font-medium text-taupe">{{ row.journal }}</span>
+          </template>
+          <template #cell-date="{ row }">
+            <span class="tabular-nums">{{ formatDate(row.date) }}</span>
+          </template>
+          <template #cell-compte="{ row }">
+            <span class="font-medium">{{ row.compte }}</span>
+          </template>
+          <template #cell-debitCredit="{ row }">
+            <AppBadge :tone="row.debitCredit === 'Débit' ? 'alerte' : 'succes'">{{ row.debitCredit }}</AppBadge>
+          </template>
+          <template #cell-valeur="{ row }">
+            <span class="whitespace-nowrap font-medium tabular-nums">{{ formatEuro(row.valeur) }}</span>
+          </template>
+          <template #actions="{ row }">
+            <AppIconButton icon="trash" label="Supprimer" tone="danger" @click="deleteMouvement(row.id)"/>
+          </template>
+        </AppTable>
+      </div>
+    </AppPage>
   </AppOverlay>
 </template>

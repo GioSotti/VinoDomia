@@ -5,10 +5,11 @@ const {isAuthenticated, saveToken} = useAuth();
 
 const email = ref("");
 const password = ref("");
+const showPassword = ref(false);
 const isSubmitting = ref(false);
-const rememberMe = ref(false);
-const isLoading = ref(false);
 const errorMessage = ref("");
+
+useHead({title: "Connexion · VinoDomia"});
 
 onMounted(async () => {
   if (isAuthenticated()) {
@@ -43,96 +44,93 @@ const onSubmit = async () => {
     saveToken(response.body.token);
     await navigateTo("/dashboard");
   } catch {
-    errorMessage.value = "Une erreur est survenue. Veuillez reessayer.";
+    errorMessage.value = "Une erreur est survenue. Veuillez réessayer.";
   } finally {
     isSubmitting.value = false;
   }
 };
-
 </script>
 
 <template>
-  <div class="min-h-screen w-full bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-    <div class="w-full max-w-md">
-      <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-800 mb-2">VinoDomia</h1>
+  <div class="flex min-h-screen w-full bg-ivoire font-sans text-encre">
+    <aside class="relative hidden w-[44%] max-w-[640px] flex-col justify-between overflow-hidden bg-encre p-12 text-ivoire lg:flex">
+      <img src="/images/logo/svg/vinodomia-logo-vertical-sable.svg" alt="VinoDomia" width="220" height="143"
+           class="h-auto w-[220px]">
+
+      <div class="flex flex-col gap-5">
+        <p class="m-0 text-xs font-medium uppercase tracking-[0.16em] text-grege">Gestion de cave</p>
+        <p class="m-0 max-w-md font-serif text-[40px] leading-[1.15]">
+          Clients, cuvées, stock et caisse, réunis au même endroit.
+        </p>
+        <p class="m-0 max-w-md text-[15px] leading-relaxed text-grege">
+          L'application pensée pour les cavistes, leurs vendeurs et les vignerons qui les fournissent.
+        </p>
       </div>
 
-      <div class="bg-white rounded-lg border border-gray-300 shadow-lg p-8 gap-6 flex flex-col">
+      <p class="m-0 text-[13px] text-grege">© 2026 VinoDomia. Tous droits réservés.</p>
+
+      <img src="/images/logo/svg/vinodomia-symbole-sable.svg" alt="" aria-hidden="true"
+           class="pointer-events-none absolute -right-24 -bottom-16 w-[420px] opacity-[0.06]">
+    </aside>
+
+    <main class="flex flex-1 flex-col items-center justify-center px-4 py-12 sm:px-8">
+      <div class="flex w-full max-w-[420px] flex-col gap-8">
+        <img src="/images/logo/svg/vinodomia-logo-horizontal-encre.svg" alt="VinoDomia" width="215" height="43"
+             class="h-auto w-[215px] lg:hidden">
+
         <div class="flex flex-col gap-2">
-          <h2 class="text-black font-bold text-2xl">Connexion</h2>
-          <p class="text-gray-600 text-sm">Entrez vos identifiants pour accéder à votre compte</p>
+          <p class="m-0 text-xs font-medium uppercase tracking-[0.16em] text-taupe">Bon retour</p>
+          <h1 class="m-0 font-serif text-[36px] font-normal leading-tight">Connexion</h1>
+          <p class="m-0 text-[15px] text-taupe">Entrez vos identifiants pour accéder à votre espace.</p>
         </div>
 
-        <form @submit.prevent="onSubmit" class="flex flex-col gap-5">
-          <div class="flex flex-col gap-2">
-            <label for="identifiant" class="font-semibold text-sm text-gray-700">Identifiant</label>
-            <input
-                id="email"
-                v-model="email"
-                type="email"
-                placeholder="Votre Email"
-                required
-                class="border border-gray-400 px-4 py-2.5 rounded text-sm focus:outline-none focus:border-gray-600 focus:ring-2 focus:ring-gray-300 transition-colors"
-            />
+        <form class="flex flex-col gap-5" novalidate @submit.prevent="onSubmit">
+          <div class="flex flex-col gap-1.5">
+            <label for="email" class="text-sm font-medium text-taupe-fonce">Adresse email</label>
+            <input id="email" v-model="email" type="email" autocomplete="email" placeholder="vous@exemple.fr" required
+                   class="h-12 rounded-[10px] border border-lin bg-papier px-3.5 text-[15px] text-encre outline-none transition-colors placeholder:text-taupe/70 focus:border-encre focus:ring-2 focus:ring-sable">
           </div>
 
-          <div class="flex flex-col gap-2">
-            <label for="password" class="font-semibold text-sm text-gray-700">Mot de passe</label>
-            <input
-                id="password"
-                v-model="password"
-                type="password"
-                placeholder="••••••••"
-                required
-                class="border border-gray-400 px-4 py-2.5 rounded text-sm focus:outline-none focus:border-gray-600 focus:ring-2 focus:ring-gray-300 transition-colors"
-            />
+          <div class="flex flex-col gap-1.5">
+            <div class="flex items-baseline justify-between">
+              <label for="password" class="text-sm font-medium text-taupe-fonce">Mot de passe</label>
+              <a href="#" class="text-[13px] font-medium text-taupe hover:text-bordeaux">Mot de passe oublié ?</a>
+            </div>
+            <div class="flex h-12 items-center rounded-[10px] border border-lin bg-papier pr-1 transition-colors focus-within:border-encre focus-within:ring-2 focus-within:ring-sable">
+              <input id="password" v-model="password" :type="showPassword ? 'text' : 'password'" autocomplete="current-password"
+                     placeholder="••••••••" required
+                     class="h-full min-w-0 flex-1 border-0 bg-transparent px-3.5 text-[15px] text-encre outline-none placeholder:text-taupe/70">
+              <AppIconButton :icon="showPassword ? 'eyeOff' : 'eye'"
+                             :label="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+                             @click="showPassword = !showPassword"/>
+            </div>
           </div>
 
-          <p v-if="errorMessage" class="text-sm text-red-600">{{ errorMessage }}</p>
-          <button
-              type="submit"
-              :disabled="isLoading"
-              class="bg-gray-800 hover:bg-gray-700 disabled:bg-gray-600 text-white font-semibold py-2.5 px-4 rounded transition-colors mt-2"
-          >
-            <span v-if="!isLoading">Se connecter</span>
-            <span v-else>Connexion en cours...</span>
+          <p v-if="errorMessage" role="alert"
+             class="m-0 flex items-start gap-2 rounded-[10px] bg-alerte-bg px-3.5 py-3 text-sm text-alerte">
+            <AppIcon name="alert" class="mt-px shrink-0"/>
+            {{ errorMessage }}
+          </p>
+
+          <button type="submit" :disabled="isSubmitting"
+                  class="mt-1 flex h-12 cursor-pointer items-center justify-center rounded-[10px] border-0 bg-encre text-[15px] font-medium text-ivoire transition-colors hover:bg-brun disabled:cursor-wait disabled:opacity-70">
+            {{ isSubmitting ? "Connexion en cours…" : "Se connecter" }}
           </button>
         </form>
 
-        <div class="flex items-center gap-3 my-2">
-          <div class="flex-1 h-px bg-gray-300"></div>
-          <span class="text-gray-500 text-xs">OU</span>
-          <div class="flex-1 h-px bg-gray-300"></div>
-        </div>
-
-        <div class="flex flex-col gap-3 text-center pt-2">
-          <a href="#" class="text-sm text-gray-600 hover:text-gray-800 transition-colors font-medium">
-            Mot de passe oublié ?
-          </a>
-          <p class="text-xs text-gray-600">
+        <div class="flex flex-col gap-3 border-t border-lin pt-6 text-center text-sm text-taupe">
+          <p class="m-0">
+            Pas encore de compte ?
+            <NuxtLink to="/register" class="font-medium text-encre hover:text-bordeaux">Créer un compte</NuxtLink>
+          </p>
+          <p class="m-0">
             Besoin d'aide ?
-            <a href="#" class="text-gray-800 hover:text-gray-600 font-semibold transition-colors">Contacter le
-              support</a>
-          </p>
-          <p class="text-xs text-gray-600">
-            Vous n'avez pas de compte ?
-            <a href="/register" class="text-sm text-gray-600 hover:text-gray-800 transition-colors font-medium">
-                Inscrivez vous
-            </a>
+            <a href="#" class="font-medium text-encre hover:text-bordeaux">Contacter le support</a>
           </p>
         </div>
-      </div>
 
-      <div class="mt-8 text-center text-xs text-gray-500 flex flex-col gap-1">
-        <p>© 2026 VinoDomia. Tous droits réservés.</p>
+        <p class="m-0 text-center text-[13px] text-taupe lg:hidden">© 2026 VinoDomia. Tous droits réservés.</p>
       </div>
-    </div>
+    </main>
   </div>
 </template>
-
-<style scoped>
-input:focus {
-  outline: none;
-}
-</style>

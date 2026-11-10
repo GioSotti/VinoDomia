@@ -1,17 +1,21 @@
 @import "tailwindcss";
 @import '@shuriken-ui/nuxt';
+
 @font-face {
     font-family: LibreBarcode128-Regular;
     src: url(../fonts/LibreBarcode128-Regular.ttf);
     font-display: swap;
 }
 
-body{
-    background-color: #F8FAFC;
-}
-
 html, body, #app {
     height: 100%;
+}
+
+body {
+    margin: 0;
+    background-color: var(--color-ivoire);
+    color: var(--color-encre);
+    font-family: var(--font-sans);
 }
 
 .libre-barcode-128-regular {
@@ -19,16 +23,32 @@ html, body, #app {
 }
 
 @theme {
-    /* Tailwind colors */
-    --color-bordeau-tech: #722F37;
-    --color-slate-foundation: #1E293B;
-    --color-muted-gold: #C4A484;
-    --color-background-grey: #F8FAFC;
+    --font-sans: 'Jost', system-ui, sans-serif;
+    --font-serif: 'Libre Caslon Text', Georgia, serif;
 
-    /* Shuriken UI colors */
+    --color-encre: #1C1714;
+    --color-brun: #3B332D;
+    --color-taupe-fonce: #5E534B;
+    --color-taupe: #6E6259;
+    --color-grege: #CDBFAF;
+    --color-lin: #E2D4C3;
+    --color-sable: #EFE4D8;
+    --color-ivoire: #F7F1E9;
+    --color-papier: #FFFDFA;
+    --color-bordeaux: #6E2433;
+    --color-alerte-bg: #F6DED8;
+    --color-alerte: #A3261B;
+    --color-attention-bg: #F6E6C8;
+    --color-attention: #875000;
+    --color-info-bg: #E2E8EC;
+    --color-info: #345A7C;
+    --color-succes-bg: #E5EBDA;
+    --color-succes: #3F6534;
+    --color-neutre-bg: #EDE5DA;
+    --color-neutre: #6E6259;
 
-    --color-primary-invert: var(--color-white);
-    --color-primary-base: var(--color-slate-foundation);
-    --color-primary-heavy: var(--color-slate-foundation);
-    --color-primary-light: var(--color-slate-foundation);
+    --color-primary-invert: var(--color-ivoire);
+    --color-primary-base: var(--color-encre);
+    --color-primary-heavy: var(--color-encre);
+    --color-primary-light: var(--color-brun);
 }

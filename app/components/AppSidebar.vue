@@ -1,139 +1,89 @@
 <script setup lang="ts">
-import {computed} from 'vue'
+import {NAV, WHO, type NavItem} from '~/utils/navigation'
 
-const links = ref([{
-  title: "Actions",
-  href: "#",
-  icon: "solar:home-smile-angle-linear",
-  children: [
-    {
-      title: "Commandes",
-      href: "#",
-      icon: "solar:home-smile-angle-linear"
-    },
-    {
-      title: "Clients",
-      href: "/clients",
-      icon: "solar:home-smile-angle-linear"
-    },
-    {
-      title: "Fournisseurs",
-      href: "/purchase_order",
-      icon: "solar:home-smile-angle-linear"
-    },
-    {
-      title: "Produits",
-      href: "/products",
-      icon: "solar:home-smile-angle-linear"
-    }
-  ]
-},
-  {
-    title: "Stock",
-    href: "#",
-    icon: "solar:home-smile-angle-linear",
-    children: [
-      {
-        title: "Transvasement",
-        href: "#",
-        icon: "solar:home-smile-angle-linear"
-      },
-      {
-        title: "Sortie de Stock",
-        href: "/stock_removal",
-        icon: "solar:home-smile-angle-linear"
-      }
-    ]
-  },
-  {
-    title: "Comptabilité et Gestion",
-    href: "#",
-    icon: "solar:home-smile-angle-linear"
-  },
-  {
-    title: "Maintenance",
-    href: "#",
-    icon: "solar:home-smile-angle-linear",
-    children: [
-      {
-        title: "Paramètres",
-        href: "/maintenance",
-        icon: "solar:home-smile-angle-linear"
-      }
-    ]
-  },
-])
-const props = defineProps<{
-  focusPage?: number,
-  focusUnderPage?: number,
-  isBurgerMenu: Boolean
-}>()
+defineProps<{ open: boolean }>()
+const emit = defineEmits<{ (e: 'close'): void }>()
 
-const focusPageModification = ref(props.focusPage ?? 0);
+const route = useRoute()
+const {profil} = useProfil()
+const {clearToken} = useAuth()
 
-const children = computed(() => {
-  return (links.value[focusPageModification.value]?.children) ?? [];
-});
+const sections = computed(() => NAV[profil.value])
+const who = computed(() => WHO[profil.value])
 
-const title = computed(() => {
-  return (links.value[focusPageModification.value]?.title) ?? "";
-});
+const isActive = (item: NavItem) => !!item.to && route.path === item.to
 
-const emit = defineEmits<{ (e: 'update:isBurgerMenu', v: boolean): void }>()
-
-function toggleBurger() {
-  emit('update:isBurgerMenu', !props.isBurgerMenu)
+function badgeClass(item: NavItem) {
+  if (item.alert) return 'bg-alerte-bg text-alerte'
+  return isActive(item) ? 'bg-brun text-ivoire' : 'bg-lin text-encre'
 }
 
-const changeFocusPage = (index: number) => {
-  focusPageModification.value = index;
-  if (props.isBurgerMenu) {
-    toggleBurger();
-  }
+function logout() {
+  clearToken()
+  navigateTo('/login')
 }
-
-const isSameBurgerPage = computed(() => {
-  return props.focusPage === focusPageModification.value;
-});
-
 </script>
 
 <template>
-  <div class="flex flex-row">
-    <div id="sideBar"
-         class="overflow-y-auto z-20 flex flex-col bg-[#182130] min-h-screen pt-10 pl-4 pr-5 shrink-0 border border-transparent border-r-gray-600 items-center gap-10">
-      <NuxtLink to="/dashboard">
-        <img src="https://placehold.co/60x60" alt="logo VinoDomia" class="w-fit h-fit"/>
-      </NuxtLink>
+  <div v-if="open" class="fixed inset-0 z-30 bg-encre/30 lg:hidden" aria-hidden="true" @click="emit('close')"/>
 
-      <nav class="flex flex-col w-full gap-1">
-        <div v-for="(link, key) in links" :key="key"
-             class="flex flex-row items-center p-3 rounded-lg cursor-pointer gap-2"
-             :class="{ 'bg-[#323f4f]': focusPage === key, 'bg-red-600' : focusPage !== key && focusPageModification === key,'bg-transparent': focusPage !== key}">
-          <BaseButton @click="changeFocusPage(key)" size="md">
-            <Icon :name="link.icon" class="size-6"/>
-          </BaseButton>
-        </div>
-      </nav>
+  <nav aria-label="Navigation principale"
+       class="fixed inset-y-0 left-0 z-40 flex w-[264px] flex-col gap-[22px] overflow-y-auto border-r border-lin bg-sable px-4 py-6 transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0"
+       :class="open ? 'translate-x-0' : '-translate-x-full'">
+    <div class="flex items-center justify-between px-2.5">
+      <NuxtLink to="/dashboard" class="flex items-center gap-2.5 text-encre no-underline" @click="emit('close')">
+        <img src="/images/logo/svg/vinodomia-symbole-encre.svg" alt="" width="38" height="32">
+        <span class="font-serif text-lg font-bold tracking-[0.06em]">VINODOMIA</span>
+      </NuxtLink>
+      <button type="button" aria-label="Fermer le menu"
+              class="flex size-10 items-center justify-center rounded-[10px] text-encre hover:bg-lin lg:hidden"
+              @click="emit('close')">
+        <AppIcon name="close" :size="20"/>
+      </button>
     </div>
-    <div id="sideBarBurgerMenu"
-         class="overflow-y-auto z-10 flex flex-col bg-[#182130] w-64 min-h-screen pt-10 pl-4 pr-5 shrink-0 transition ease-in-out duration-300"
-         :class="{ 'translate-0 relative': !isBurgerMenu, '-translate-x-64 absolute': isBurgerMenu }">
-      <div class="flex flex-row items-center gap-5 w-full pb-10">
-        <h1 class="text-white font-bold text-xl">{{ title }}</h1>
-      </div>
-      <nav class="flex flex-col w-full gap-1">
-        <div v-for="(link, childKey) in children" :key="childKey"
-             class="flex flex-row items-center p-3 rounded-lg cursor-pointer gap-2"
-             :class="{ 'bg-[#323f4f]': isSameBurgerPage && focusUnderPage === childKey, 'bg-transparent': !isSameBurgerPage || focusUnderPage !== childKey }">
-          <Icon :name="link.icon" class="h-6 w-6"
-                :class="{ 'text-white': isSameBurgerPage && focusUnderPage === childKey, 'text-[#7c8491]': !isSameBurgerPage || focusUnderPage !== childKey }"/>
-          <NuxtLink :to="link.href" class="w-full"
-                    :class="{ 'text-white': isSameBurgerPage && focusUnderPage === childKey, 'text-[#7c8491]': !isSameBurgerPage || focusUnderPage !== childKey }">
-            {{ link.title }}
+
+    <div class="flex flex-col gap-[18px]">
+      <div v-for="section in sections" :key="section.title" class="flex flex-col gap-0.5">
+        <p class="mb-1 px-3 text-xs font-medium uppercase tracking-[0.14em] text-taupe-fonce">{{ section.title }}</p>
+
+        <template v-for="item in section.items" :key="item.label">
+          <NuxtLink v-if="item.to" :to="item.to"
+                    :aria-current="isActive(item) ? 'page' : undefined"
+                    class="flex min-h-11 items-center gap-3 rounded-[10px] px-3 text-[15px] no-underline transition-colors"
+                    :class="isActive(item) ? 'bg-encre font-medium text-ivoire' : 'text-encre hover:bg-lin/60'"
+                    @click="emit('close')">
+            <AppIcon :name="item.icon"/>
+            <span class="flex-1">{{ item.label }}</span>
+            <span v-if="item.badge" class="rounded-full px-2 py-px text-xs font-medium" :class="badgeClass(item)">
+              {{ item.badge }}
+            </span>
           </NuxtLink>
-        </div>
-      </nav>
+
+          <span v-else aria-disabled="true" title="Bientôt disponible"
+                class="flex min-h-11 cursor-not-allowed items-center gap-3 rounded-[10px] px-3 text-[15px] text-encre opacity-50">
+            <AppIcon :name="item.icon"/>
+            <span class="flex-1">{{ item.label }}</span>
+            <span v-if="item.badge" class="rounded-full px-2 py-px text-xs font-medium" :class="badgeClass(item)">
+              {{ item.badge }}
+            </span>
+          </span>
+        </template>
+      </div>
     </div>
-  </div>
+
+    <div class="mt-auto flex items-center gap-3 rounded-xl border border-lin bg-ivoire p-3">
+      <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-encre font-serif text-base text-ivoire">
+        {{ who.initial }}
+      </div>
+      <div class="flex min-w-0 flex-1 flex-col">
+        <p class="m-0 truncate text-sm font-medium">{{ who.name }}</p>
+        <p class="m-0 truncate text-[13px] text-taupe">{{ who.sub }}</p>
+      </div>
+      <button type="button" aria-label="Se déconnecter" title="Se déconnecter"
+              class="flex size-9 shrink-0 items-center justify-center rounded-[10px] text-taupe hover:bg-sable hover:text-encre"
+              @click="logout">
+        <AppIcon name="logout"/>
+      </button>
+    </div>
+  </nav>
 </template>

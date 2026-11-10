@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import type {TableColumn} from "~/utils/table";
 
 definePageMeta({
   middleware: "auth",
@@ -53,17 +53,27 @@ const modalFournisseurDetails = ref({
 });
 
 const modalCreationFournisseur = ref(false);
-const value = ref("");
+const query = ref("");
+
+const columns: TableColumn[] = [
+  {key: "societe", label: "Société"},
+  {key: "contact", label: "Contact"},
+  {key: "ville", label: "Ville", hideBelow: "md"},
+];
+
+const filteredFournisseurs = computed(() => filterRows(fournisseurs.value, query.value, ["societe", "contact", "ville"]));
+
+const isEditing = computed(() => fournisseurs.value.some(f => f.id === modalFournisseurDetails.value.id));
 
 const openModal = (fournisseur: typeof modalFournisseurDetails.value) => {
-  modalFournisseurDetails.value = fournisseur;
+  modalFournisseurDetails.value = {...fournisseur};
   modalCreationFournisseur.value = true;
 }
 
 const closeModal = () => {
   modalCreationFournisseur.value = false;
   modalFournisseurDetails.value = {
-    id: fournisseurs.value.length,
+    id: Math.max(-1, ...fournisseurs.value.map(f => f.id)) + 1,
     societe: "",
     contact: "",
     ville: ""
@@ -87,83 +97,48 @@ const saveFournisseur = () => {
 </script>
 
 <template>
-<AppOverlay :focus-pages="0" :focus-under-page="1">
-  <div class="flex flex-col w-full p-8 gap-5 h-full">
-    <h1 class="text-black font-bold text-3xl">Sélection d'un fournisseur</h1>
-    <BaseCard variant="none" rounded="md" class="px-5 py-4 bg-white border-gray-300/50 flex flex-col w-full h-[600px] gap-2">
-      <div class="flex flex-row w-full gap-4 items-center mb-6">
-        <BaseInput
-            v-model="value"
-            rounded="md"
-            placeholder="Rechercher un fournisseur"
-        />
-        <BaseButton size="md" variant="primary" class="w-fit flex gap-2">
-          <Icon name="ic:baseline-search" class="size-5"/>
-          Rechercher
-        </BaseButton>
-        <span class="h-full w-0.5 bg-gray-500"></span>
-        <BaseButton size="md" variant="primary" class="w-fit flex"
-            @click="modalCreationFournisseur = !modalCreationFournisseur">
-          <Icon name="ic:round-add-circle-outline" class="size-5"/>
-          Ajouter un fournisseur
-        </BaseButton>
-      </div><span class="w-full h-0.5 bg-gray-300 mb-5"></span>
-      <div class="flex flex-col w-full gap-3 overflow-y-auto flex-1">
-        <div v-for="(fournisseur, key) in fournisseurs" :key="key" class="flex flex-col w-full gap-3">
-          <div class="flex flex-row w-full gap-2 items-center justify-between pr-2">
-            <div class="flex flex-row items-center gap-4 flex-1 min-w-0">
-              <div class="flex flex-col w-64 min-w-0">
-                <h4 class="text-gray-500 text-xs">Société</h4>
-                <h3 class="text-black font-semibold truncate" :title="fournisseur.societe">{{ fournisseur.societe }}</h3>
-              </div>
-              <div class="flex flex-col w-32 min-w-0">
-                <h4 class="text-gray-500 text-xs">Contact</h4>
-                <h3 class="text-black truncate" :title="fournisseur.contact">{{ fournisseur.contact }}</h3>
-              </div>
-              <div class="flex flex-col w-32 min-w-0">
-                <h4 class="text-gray-500 text-xs">Ville</h4>
-                <h3 class="text-black truncate" :title="fournisseur.ville">{{ fournisseur.ville }}</h3>
-              </div>
-            </div>
-            <div class="flex flex-row gap-2 items-center flex-shrink-0">
-              <BaseButton @click="openModal(fournisseur)">
-                <Icon name="ic:baseline-edit" class="size-5"/>
-              </BaseButton>
-              <BaseButton @click="deleteFournisseur(fournisseur.id)">
-                <Icon name="ic:round-delete" class="size-5 bg-red-500"/>
-              </BaseButton>
-            </div>
-          </div>
-          <div class="w-full h-px bg-gray-300"
-               :class="{ 'hidden': key === fournisseurs.length-1, 'block' : key !== fournisseurs.length-1 }"></div>
+  <AppOverlay>
+    <AppPage eyebrow="Cave" title="Fournisseurs">
+      <template #actions>
+        <AppButton icon="plus" @click="closeModal(); modalCreationFournisseur = true">Ajouter un fournisseur</AppButton>
+      </template>
+
+      <AppTable :columns="columns" :rows="filteredFournisseurs" :row-key="f => f.id"
+                :count-label="['fournisseur', 'fournisseurs']" empty-label="Aucun fournisseur ne correspond à la recherche.">
+        <template #toolbar>
+          <AppSearchField v-model="query" placeholder="Rechercher un fournisseur, un contact, une ville…" class="max-w-[460px]"/>
+        </template>
+        <template #cell-societe="{ row }">
+          <span class="font-medium">{{ row.societe }}</span>
+        </template>
+        <template #cell-contact="{ row }">
+          <span class="text-brun">{{ row.contact }}</span>
+        </template>
+        <template #cell-ville="{ row }">
+          <span class="text-brun">{{ row.ville }}</span>
+        </template>
+        <template #actions="{ row }">
+          <AppIconButton icon="pencil" label="Modifier" @click="openModal(row)"/>
+          <AppIconButton icon="trash" label="Supprimer" tone="danger" @click="deleteFournisseur(row.id)"/>
+        </template>
+      </AppTable>
+    </AppPage>
+
+    <AppModal :is-visible="modalCreationFournisseur" :title="isEditing ? 'Modifier le fournisseur' : 'Nouveau fournisseur'"
+              @close-modal="closeModal" @save-modal="saveFournisseur">
+      <div class="flex flex-col gap-4">
+        <AppField label="Société" for="societe">
+          <BaseInput id="societe" v-model="modalFournisseurDetails.societe" rounded="md"/>
+        </AppField>
+        <div class="flex flex-col gap-4 sm:flex-row">
+          <AppField label="Contact" for="contact">
+            <BaseInput id="contact" v-model="modalFournisseurDetails.contact" rounded="md"/>
+          </AppField>
+          <AppField label="Ville" for="ville">
+            <BaseInput id="ville" v-model="modalFournisseurDetails.ville" rounded="md"/>
+          </AppField>
         </div>
       </div>
-    </BaseCard>
-  </div>
-  <AppModal :is-visible="modalCreationFournisseur" @close-modal="closeModal" @save-modal="saveFournisseur" save-label="Sauvegarder" cancel-label="Annuler">
-    <div class="flex flex-col w-full h-140 gap-4 overflow-auto px-4 py-2">
-      <h2 class="text-black font-bold text-2xl mb-4">Modifier</h2>
-      <div class="flex flex-col gap-4 text-black">
-        <div class="flex flex-col gap-2">
-          <label for="societe">Société :</label>
-          <BaseInput rounded="md" id="societe" v-model="modalFournisseurDetails.societe"/>
-        </div>
-        <div class="flex flex-col gap-2">
-          <label for="contact">Contact :</label>
-          <BaseInput rounded="md" id="contact" v-model="modalFournisseurDetails.contact"/>
-        </div>
-        <div class="flex flex-row w-full gap-2">
-          <div class="flex flex-col gap-2 w-full">
-            <label for="ville">Ville :</label>
-            <BaseInput rounded="md" id="ville" v-model="modalFournisseurDetails.ville"/>
-          </div>
-        </div>
-      </div>
-    </div>
-  </AppModal>
-</AppOverlay>
+    </AppModal>
+  </AppOverlay>
 </template>
-
-<style scoped>
-
-</style>

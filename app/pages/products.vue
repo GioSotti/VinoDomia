@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import type {TableColumn} from "~/utils/table";
 
 const modalCreationProduct = ref(false);
 
-const value = ref("");
+const query = ref("");
 
 const modalProductsDetails = ref({
   id: 0,
@@ -148,176 +148,157 @@ const saveProduct = () => {
 const families = ref([...new Set(products.value.map(product => product.family))]);
 const suppliers = ref([...new Set(products.value.map(product => product.suppliers))]);
 
-const fields = reactive({
-  first: '',
-})
+const familyFilter = ref("");
+const supplierFilter = ref("");
+
+const columns: TableColumn[] = [
+  {key: "reference", label: "Référence"},
+  {key: "designation", label: "Désignation"},
+  {key: "suppliers", label: "Fournisseur", hideBelow: "xl"},
+  {key: "priceWithoutTax", label: "Prix HT", align: "right"},
+  {key: "tva", label: "TVA", align: "right", hideBelow: "lg"},
+  {key: "priceWithTax", label: "Prix TTC", align: "right", hideBelow: "md"},
+  {key: "bio", label: "Bio", align: "center", hideBelow: "md"},
+];
+
+const filteredProducts = computed(() =>
+    filterRows(products.value, query.value, ["reference", "designation", "family", "suppliers", "barCode"])
+        .filter(product => !familyFilter.value || product.family === familyFilter.value)
+        .filter(product => !supplierFilter.value || product.suppliers === supplierFilter.value)
+);
+
+const isEditing = computed(() => products.value.some(p => p.id === modalProductsDetails.value.id));
+
+const priceWithTax = (price: number, tva: number) => price * (1 + tva / 100);
+
+const newProduct = () => {
+  closeModal();
+  modalProductsDetails.value.id = Math.max(0, ...products.value.map(p => p.id)) + 1;
+  modalProductsDetails.value.tva = 20;
+  modalCreationProduct.value = true;
+};
 
 </script>
 
 <template>
-  <AppOverlay :focus-page="0" :focus-under-page="3">
-    <!-- Page content -->
-    <div class="flex flex-col w-full p-8 gap-5 h-full">
-      <h1 class="text-black font-bold text-3xl">Produits</h1>
-      <!-- Search and filters -->
-      <BaseCard variant="none" rounded="md"
-                class="px-5 py-4 bg-white border border-gray-300/50 flex flex-col w-full h-150 gap-2">
-        <!-- BaseCard Upper Part -->
-        <div class="flex flex-row w-full gap-5 items-center mb-2">
-          <!-- Search Bar -->
-          <BaseInput
-              v-model="value"
-              rounded="md"
-              placeholder="Rechercher un client..."
-          />
-          <BaseButton size="md" variant="primary" class="w-fit flex gap-2">
-            <Icon name="ic:baseline-search" class="size-5"/>
-            Rechercher
-          </BaseButton>
-          <span class="h-full w-0.5 bg-gray-500"></span>
-          <BaseButton size="md" variant="primary" class="w-fit flex"
-                      @click="modalCreationProduct = !modalCreationProduct">
-            <Icon name="ic:round-add-circle-outline" class="size-5"/>
-            Ajouter un produit
-          </BaseButton>
-        </div>
-        <div class="flex flex-row w-full gap-4 items-center mb-6">
-          <!-- Filters -->
-          <div class="flex flex-col w-full">
-            <label for="family" class="font-semibold">Famille</label>
-            <BaseAutocomplete placeholder="Ex: nom de la famille" v-model="fields.first" id="family">
-              <BaseAutocompleteItem v-for="item in families" :key="item" :value="item">
-                {{ item }}
-              </BaseAutocompleteItem>
-            </BaseAutocomplete>
-          </div>
-          <div class="flex flex-col w-full">
-            <label for="suppliers" class="font-semibold">Fournisseurs</label>
-            <BaseAutocomplete placeholder="Ex: nom des fournisseurs" v-model="fields.first" id="suppliers">
-              <BaseAutocompleteItem v-for="item in suppliers" :key="item" :value="item">
-                {{ item }}
-              </BaseAutocompleteItem>
-            </BaseAutocomplete>
-          </div>
-        </div>
-        <span class="w-full h-0.5 bg-gray-300 mb-5"></span>
-        <!-- BaseCard Lower Part -->
-        <div class="flex flex-col w-full gap-3 overflow-y-auto flex-1">
-          <!-- Table Header -->
-          <div
-              class="grid grid-cols-[1fr_2fr_2fr_3fr_1fr_1fr_auto] gap-4 px-4 py-2 bg-gray-100 font-semibold text-sm text-gray-700 text-center">
-            <div>Référence</div>
-            <div>Famille</div>
-            <div>Prix HT (€)</div>
-            <div>TVA</div>
-            <div>X</div>
-            <div>Bio</div>
-            <div>Actions</div>
-          </div>
+  <AppOverlay>
+    <AppPage eyebrow="Cave" title="Produits">
+      <template #actions>
+        <AppButton icon="plus" @click="newProduct">Ajouter un produit</AppButton>
+      </template>
 
-          <div v-for="(product, key) in products" :key="key" class="flex flex-col w-full">
-            <!-- Table Row -->
-            <div
-                class="grid grid-cols-[1fr_2fr_2fr_3fr_1fr_1fr_auto] gap-4 px-4 py-3 items-center hover:bg-gray-50 cursor-pointer transition-colors text-center">
-              <!-- Product details -->
-              <div class="text-sm font-medium">{{ product.reference }}</div>
-              <div class="text-sm">{{ product.family }}</div>
-              <div class="text-sm">{{ product.priceWithoutTax.toFixed(2) }}€</div>
-              <div class="text-sm">{{ product.tva }}%</div>
-              <BaseCheckbox
-                  v-model="product.x"
-              />
-              <BaseCheckbox
-                  v-model="product.bio"
-              />
-              <div class="flex gap-2">
-                <!-- Edit and Delete buttons -->
-                <BaseButton size="sm" variant="primary" @click.stop="openModal(product)">
-                  <Icon name="ic:baseline-edit" class="size-4"/>
-                </BaseButton>
-                <BaseButton size="sm" variant="destructive" @click.stop="deleteClient(product.id)">
-                  <Icon name="ic:baseline-delete" class="size-4"/>
-                </BaseButton>
-              </div>
-            </div>
-            <div class="w-full h-px bg-gray-300" :class="{ 'hidden': key === products.length-1 }"></div>
+      <AppTable :columns="columns" :rows="filteredProducts" :row-key="p => p.id"
+                :count-label="['produit', 'produits']" empty-label="Aucun produit ne correspond aux filtres.">
+        <template #toolbar>
+          <AppSearchField v-model="query" placeholder="Rechercher une référence, un vin, un code-barres…" class="max-w-[460px]"/>
+          <div class="flex flex-[1_1_320px] flex-wrap gap-3 sm:justify-end">
+            <label class="sr-only" for="family-filter">Famille</label>
+            <select id="family-filter" v-model="familyFilter"
+                    class="h-11 min-w-0 flex-1 cursor-pointer rounded-[10px] border border-lin bg-papier px-3 text-[15px] text-encre sm:max-w-64">
+              <option value="">Toutes les familles</option>
+              <option v-for="family in families" :key="family" :value="family">{{ family }}</option>
+            </select>
+            <label class="sr-only" for="supplier-filter">Fournisseur</label>
+            <select id="supplier-filter" v-model="supplierFilter"
+                    class="h-11 min-w-0 flex-1 cursor-pointer rounded-[10px] border border-lin bg-papier px-3 text-[15px] text-encre sm:max-w-64">
+              <option value="">Tous les fournisseurs</option>
+              <option v-for="supplier in suppliers" :key="supplier" :value="supplier">{{ supplier }}</option>
+            </select>
+          </div>
+        </template>
+        <template #cell-reference="{ row }">
+          <span class="text-[13px] font-medium text-taupe">{{ row.reference }}</span>
+        </template>
+        <template #cell-designation="{ row }">
+          <div class="flex min-w-56 flex-col">
+            <span class="font-medium">{{ row.designation }}</span>
+            <span class="text-[13px] text-taupe">{{ row.family }}</span>
+          </div>
+        </template>
+        <template #cell-suppliers="{ row }">
+          <span class="whitespace-nowrap text-brun">{{ row.suppliers }}</span>
+        </template>
+        <template #cell-priceWithoutTax="{ row }">
+          <span class="whitespace-nowrap font-medium tabular-nums">{{ formatEuro(row.priceWithoutTax) }}</span>
+        </template>
+        <template #cell-tva="{ row }">
+          <span class="whitespace-nowrap text-brun tabular-nums">{{ row.tva }} %</span>
+        </template>
+        <template #cell-priceWithTax="{ row }">
+          <span class="whitespace-nowrap tabular-nums">{{ formatEuro(priceWithTax(row.priceWithoutTax, row.tva)) }}</span>
+        </template>
+        <template #cell-bio="{ row }">
+          <AppBadge v-if="row.bio" tone="succes">Bio</AppBadge>
+          <span v-else class="text-taupe">—</span>
+        </template>
+        <template #actions="{ row }">
+          <AppIconButton icon="pencil" label="Modifier" @click="openModal(row)"/>
+          <AppIconButton icon="trash" label="Supprimer" tone="danger" @click="deleteClient(row.id)"/>
+        </template>
+      </AppTable>
+    </AppPage>
+
+    <AppModal :is-visible="modalCreationProduct" :title="isEditing ? 'Modifier le produit' : 'Nouveau produit'"
+              @close-modal="closeModal" @save-modal="saveProduct">
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4 sm:flex-row">
+          <AppField label="Référence" for="reference" class="sm:max-w-48">
+            <BaseInput id="reference" v-model="modalProductsDetails.reference" placeholder="PROD000" rounded="md"/>
+          </AppField>
+          <AppField label="Désignation" for="designation">
+            <BaseInput id="designation" v-model="modalProductsDetails.designation" placeholder="Château Montfin 2020 - 75cl" rounded="md"/>
+          </AppField>
+        </div>
+        <div class="flex flex-col gap-4 sm:flex-row">
+          <AppField label="Famille" for="family">
+            <BaseInput id="family" v-model="modalProductsDetails.family" placeholder="Vin AOC Corbières Rouge" rounded="md"/>
+          </AppField>
+          <AppField label="Fournisseur" for="suppliers">
+            <BaseInput id="suppliers" v-model="modalProductsDetails.suppliers" placeholder="Domaine de la Dourbie" rounded="md"/>
+          </AppField>
+        </div>
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-end">
+          <AppField label="Prix HT (€)" for="priceWithoutTax">
+            <BaseInputNumber id="priceWithoutTax" v-model="modalProductsDetails.priceWithoutTax" placeholder="10" rounded="md"/>
+          </AppField>
+          <AppField label="TVA (%)" for="tva">
+            <BaseInputNumber id="tva" v-model="modalProductsDetails.tva" placeholder="20" rounded="md" :step="0.5"/>
+          </AppField>
+          <div class="flex flex-1 flex-col gap-1.5">
+            <span class="text-sm font-medium text-taupe-fonce">Prix TTC</span>
+            <span class="flex h-11 items-center rounded-[10px] bg-sable px-3.5 font-serif text-xl tabular-nums">
+              {{ formatEuro(priceWithTax(modalProductsDetails.priceWithoutTax, modalProductsDetails.tva)) }}
+            </span>
           </div>
         </div>
-        <AppModal :is-visible="modalCreationProduct" @close-modal="closeModal" @save-modal="saveProduct">
-          <div class="flex flex-col w-full h-full gap-4 overflow-auto px-4 py-2">
-            <!-- Modal content -->
-            <h2 class="text-black font-bold text-2xl mb-4">Créer / modifier un nouveau produit</h2>
-            <div class="flex flex-col gap-4 text-black">
-              <div class="flex flex-row w-full gap-2 items-center">
-                <!-- Reference and Family -->
-                <div class="flex flex-col w-full">
-                  <label for="reference">Référence :</label>
-                  <BaseInput placeholder="PROD000" rounded="md" id="reference"
-                             v-model="modalProductsDetails.reference"/>
-                </div>
-              </div>
-              <div class="flex flex-row w-full gap-2 items-center">
-                <div class="flex flex-col w-full gap-2">
-                  <label for="family">Famille :</label>
-                  <BaseInput placeholder="VIN" rounded="md" id="family"
-                             v-model="modalProductsDetails.family"/>
-                </div>
-                <div class="flex flex-col w-full gap-2">
-                  <label for="suppliers">Fournisseur :</label>
-                  <BaseInput placeholder="INTERNE" rounded="md" id="suppliers"
-                             v-model="modalProductsDetails.suppliers"/>
-                </div>
-              </div>
-              <label for="designation">Désignation :</label>
-              <BaseInput placeholder="CHATEAU MONTFIN" rounded="md" id="designation"
-                         v-model="modalProductsDetails.designation"/>
-              <div class="flex flex-row w-full gap-2 items-center">
-                <div class="flex flex-col gap-2 w-full">
-                  <label for="priceWithoutTax">Prix HT (€) :</label>
-                  <BaseInputNumber placeholder="10" rounded="md" id="priceWithoutTax"
-                                   v-model="modalProductsDetails.priceWithoutTax"/>
-                </div>
-                <div class="flex flex-col w-full gap-2">
-                  <label for="tva">TVA :</label>
-                  <BaseInputNumber placeholder="10.0" rounded="md" id="tva" v-model="modalProductsDetails.tva"
-                                   :step="0.5"/>
-                </div>
-                <div class="flex flex-col w-full gap-4 items-center">
-                  <label for="totalPrice">Prix TTC (€) :</label>
-                  <h3 class="font-semibold" id="totalPrice">
-                    {{ (modalProductsDetails.priceWithoutTax * (1 + modalProductsDetails.tva / 100)).toFixed(2) }}</h3>
-                </div>
-              </div>
-              <div class="flex flex-row w-full gap-2 justify-between">
-                <div class="flex flex-col gap-2 w-1/2">
-                  <label for="barCode">Code Bar :</label>
-                  <BaseInput placeholder="0123456789" rounded="md" id="barCode"
-                             v-model="modalProductsDetails.barCode"/>
-                  <h3 class="libre-barcode-128-regular text-6xl text-center">
-                    {{
-                      parseInt(modalProductsDetails.barCode) > 99999999999999999n ? 99999999999999999n : modalProductsDetails.barCode
-                    }}</h3>
-                </div>
-                <div class="flex flex-col gap-2 w-1/2">
-                  <label for="internalBarCode">Code bar interne :</label>
-                  <BaseInput placeholder="9876543210" rounded="md" id="internalBarCode"
-                             v-model="modalProductsDetails.internalBarCode"/>
-                  <h3 class="libre-barcode-128-regular text-6xl text-center">
-                    {{
-                      parseInt(modalProductsDetails.internalBarCode) > 99999999999999999n ? 99999999999999999n : modalProductsDetails.internalBarCode
-                    }}</h3>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Modal actions (need to be implemented) -->
-          <BaseButton class="w-full">Imprimer</BaseButton>
-        </AppModal>
-      </BaseCard>
-    </div>
+        <div class="flex gap-6">
+          <label class="flex cursor-pointer items-center gap-2 text-[15px]">
+            <input v-model="modalProductsDetails.bio" type="checkbox" class="size-4 accent-encre">
+            Bio
+          </label>
+          <label class="flex cursor-pointer items-center gap-2 text-[15px]">
+            <input v-model="modalProductsDetails.x" type="checkbox" class="size-4 accent-encre">
+            X
+          </label>
+        </div>
+        <div class="flex flex-col gap-4 sm:flex-row">
+          <AppField label="Code-barres" for="barCode">
+            <BaseInput id="barCode" v-model="modalProductsDetails.barCode" placeholder="0123456789" rounded="md"/>
+            <p class="libre-barcode-128-regular m-0 text-center text-6xl">
+              {{ parseInt(modalProductsDetails.barCode) > 99999999999999999n ? 99999999999999999n : modalProductsDetails.barCode }}
+            </p>
+          </AppField>
+          <AppField label="Code-barres interne" for="internalBarCode">
+            <BaseInput id="internalBarCode" v-model="modalProductsDetails.internalBarCode" placeholder="9876543210" rounded="md"/>
+            <p class="libre-barcode-128-regular m-0 text-center text-6xl">
+              {{ parseInt(modalProductsDetails.internalBarCode) > 99999999999999999n ? 99999999999999999n : modalProductsDetails.internalBarCode }}
+            </p>
+          </AppField>
+        </div>
+      </div>
+      <template #footer>
+        <AppButton variant="ghost" icon="printer" class="mr-auto">Imprimer</AppButton>
+      </template>
+    </AppModal>
   </AppOverlay>
 </template>
-
-<style scoped>
-
-</style>

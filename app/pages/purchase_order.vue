@@ -219,7 +219,7 @@ const removeItemAt = (index: number) => {
 </script>
 
 <template>
-  <Overlay :focus-page="0" :focus-under-page="2">
+  <AppOverlay :focus-page="0" :focus-under-page="2">
     <!-- Page content -->
     <div class="flex flex-col w-full p-8 gap-5 h-full">
       <h1 class="text-black font-bold text-3xl">Bon de commande</h1>
@@ -284,8 +284,8 @@ const removeItemAt = (index: number) => {
         </div>
       </BaseCard>
     </div>
-  </Overlay>
-  <Modal :is-visible="modalCreationPurchaseOrder" @close-modal="closeModal" @save-modal="savePurchaseOrder"
+  </AppOverlay>
+  <AppModal :is-visible="modalCreationPurchaseOrder" @close-modal="closeModal" @save-modal="savePurchaseOrder"
          :firstButtonText="'Save'" :secondButtonText="'Cancel'">
     <div class="flex flex-col w-full h-140 gap-4 overflow-auto px-4 py-2">
       <h2 class="text-black font-bold text-2xl mb-4">Créer un nouveau bon de commande</h2>
@@ -355,7 +355,7 @@ const removeItemAt = (index: number) => {
         </BaseCard>
       </div>
     </div>
-  </Modal>
+  </AppModal>
 </template>
 
 <style scoped>

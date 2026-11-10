@@ -63,7 +63,7 @@ const filters = [
 </script>
 
 <template>
-  <Overlay :focus-page="0">
+  <AppOverlay :focus-page="0">
     <div class="flex flex-col w-full p-8 gap-10">
       <div class="flex flex-row flex-wrap w-full text-black font-bold text-3xl items-center justify-between gap-2">
         <h1>{{ name }} détail</h1>
@@ -144,7 +144,7 @@ const filters = [
         </div>
       </BaseCard>
     </div>
-  </Overlay>
+  </AppOverlay>
 </template>
 
 <style scoped>

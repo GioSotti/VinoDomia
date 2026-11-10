@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parsePrice } from '../app/utils/parsePriceUtils'
+import { parsePrice } from '../../app/utils/parsePriceUtils'
 
 describe('parsePrice', () => {
   it('formate un prix avec le séparateur donné', () => {

@@ -6,6 +6,9 @@ export default defineNuxtConfig({
     devtools: {enabled: true},
     modules: ['@shuriken-ui/nuxt', '@nuxt/eslint'],
     css: ['~/assets/css/main.css'],
+    runtimeConfig: {
+        jwtSecret: '',
+    },
     vite: {
         plugins: [
             tailwindcss(),

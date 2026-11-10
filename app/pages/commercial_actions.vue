@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Carousel, Slide, Navigation } from 'vue3-carousel'
 import 'vue3-carousel/dist/carousel.css'
-import Overlay from '../components/Overlay.vue'
 
 const value = ref('')
 
@@ -74,7 +73,7 @@ const columns = ref([
 
 
 <template>
-  <Overlay>
+  <AppOverlay>
     <div class="p-10">
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-3xl font-bold text-600 bg-#1E293B">Actions Commerciales</h1>
@@ -130,7 +129,7 @@ const columns = ref([
         </Carousel>
       </div>
     </div>
-  </Overlay>
+  </AppOverlay>
 </template>
 
 <style scoped>

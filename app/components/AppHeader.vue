@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import {ref} from 'vue'
-import {isAuthenticatedToken} from "~~/utils/authToken";
+const {isAuthenticated: checkAuth, clearToken} = useAuth();
 
 const value = ref('')
 const isAuthenticated = ref(false);
@@ -16,11 +15,11 @@ function toggleBurger() {
 }
 
 onMounted(() => {
-  isAuthenticated.value = isAuthenticatedToken()
+  isAuthenticated.value = checkAuth()
 });
 
 const logout = async () => {
-  localStorage.removeItem("authToken");
+  clearToken();
   window.location.reload();
 };
 

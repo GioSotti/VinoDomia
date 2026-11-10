@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {ref, computed} from "vue";
-import Overlay from '../components/Overlay.vue'
 
 
 const today = new Date();
@@ -88,7 +87,7 @@ const messageMotif = computed(() => {
 </script>
 
 <template>
-  <Overlay :focus-pages="0" :focus-under-page="1">
+  <AppOverlay :focus-pages="0" :focus-under-page="1">
     <div class="flex flex-col w-full p-8 gap-5 h-full">
       <h1 class="text-black font-bold text-3xl">Entrées / Sorties d'espèces</h1>
       <div class="bg-gray-200 rounded-lg p-6 flex gap-8">
@@ -180,5 +179,5 @@ const messageMotif = computed(() => {
         </div>
       </BaseCard>
     </div>
-  </Overlay>
+  </AppOverlay>
 </template>

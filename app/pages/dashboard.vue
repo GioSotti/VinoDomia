@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import {isAuthenticatedToken} from "~~/utils/authToken";
 
 const name = ref("SCEA Château Montfin");
 const unpayedBillsAmount = ref(153);
@@ -51,7 +50,7 @@ const ongoingActivities = ref([{
 </script>
 
 <template>
-  <Overlay>
+  <AppOverlay>
     <!-- Page content -->
     <div class="flex flex-col w-full p-8 gap-10">
       <!-- First content top row -->
@@ -151,5 +150,5 @@ const ongoingActivities = ref([{
 
       </div>
     </div>
-  </Overlay>
+  </AppOverlay>
 </template>

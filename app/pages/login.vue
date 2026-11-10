@@ -5,10 +5,11 @@ const {isAuthenticated, saveToken} = useAuth();
 
 const email = ref("");
 const password = ref("");
+const showPassword = ref(false);
 const isSubmitting = ref(false);
-const rememberMe = ref(false);
-const isLoading = ref(false);
 const errorMessage = ref("");
+
+useHead({title: "Connexion · VinoDomia"});
 
 onMounted(async () => {
   if (isAuthenticated()) {
@@ -43,96 +44,65 @@ const onSubmit = async () => {
     saveToken(response.body.token);
     await navigateTo("/dashboard");
   } catch {
-    errorMessage.value = "Une erreur est survenue. Veuillez reessayer.";
+    errorMessage.value = "Une erreur est survenue. Veuillez réessayer.";
   } finally {
     isSubmitting.value = false;
   }
 };
-
 </script>
 
 <template>
-  <div class="min-h-screen w-full bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-    <div class="w-full max-w-md">
-      <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-800 mb-2">VinoDomia</h1>
+  <AuthLayout eyebrow="Bon retour" title="Connexion" subtitle="Entrez vos identifiants pour accéder à votre espace.">
+    <form class="flex flex-col gap-5" novalidate @submit.prevent="onSubmit">
+      <div class="flex flex-col gap-1.5">
+        <label for="email" class="text-sm font-medium text-taupe-fonce">Adresse email</label>
+        <input id="email" v-model="email" type="email" autocomplete="email" placeholder="vous@exemple.fr" required
+               class="h-12 rounded-[10px] border border-lin bg-papier px-3.5 text-[15px] text-encre outline-none transition-colors placeholder:text-taupe/70 focus:border-encre focus:ring-2 focus:ring-sable">
       </div>
 
-      <div class="bg-white rounded-lg border border-gray-300 shadow-lg p-8 gap-6 flex flex-col">
-        <div class="flex flex-col gap-2">
-          <h2 class="text-black font-bold text-2xl">Connexion</h2>
-          <p class="text-gray-600 text-sm">Entrez vos identifiants pour accéder à votre compte</p>
+      <div class="flex flex-col gap-1.5">
+        <div class="flex items-baseline justify-between">
+          <label for="password" class="text-sm font-medium text-taupe-fonce">Mot de passe</label>
+          <a href="#" class="text-[13px] font-medium text-taupe hover:text-bordeaux">Mot de passe oublié ?</a>
         </div>
-
-        <form @submit.prevent="onSubmit" class="flex flex-col gap-5">
-          <div class="flex flex-col gap-2">
-            <label for="identifiant" class="font-semibold text-sm text-gray-700">Identifiant</label>
-            <input
-                id="email"
-                v-model="email"
-                type="email"
-                placeholder="Votre Email"
-                required
-                class="border border-gray-400 px-4 py-2.5 rounded text-sm focus:outline-none focus:border-gray-600 focus:ring-2 focus:ring-gray-300 transition-colors"
-            />
-          </div>
-
-          <div class="flex flex-col gap-2">
-            <label for="password" class="font-semibold text-sm text-gray-700">Mot de passe</label>
-            <input
-                id="password"
-                v-model="password"
-                type="password"
-                placeholder="••••••••"
-                required
-                class="border border-gray-400 px-4 py-2.5 rounded text-sm focus:outline-none focus:border-gray-600 focus:ring-2 focus:ring-gray-300 transition-colors"
-            />
-          </div>
-
-          <p v-if="errorMessage" class="text-sm text-red-600">{{ errorMessage }}</p>
-          <button
-              type="submit"
-              :disabled="isLoading"
-              class="bg-gray-800 hover:bg-gray-700 disabled:bg-gray-600 text-white font-semibold py-2.5 px-4 rounded transition-colors mt-2"
-          >
-            <span v-if="!isLoading">Se connecter</span>
-            <span v-else>Connexion en cours...</span>
-          </button>
-        </form>
-
-        <div class="flex items-center gap-3 my-2">
-          <div class="flex-1 h-px bg-gray-300"></div>
-          <span class="text-gray-500 text-xs">OU</span>
-          <div class="flex-1 h-px bg-gray-300"></div>
-        </div>
-
-        <div class="flex flex-col gap-3 text-center pt-2">
-          <a href="#" class="text-sm text-gray-600 hover:text-gray-800 transition-colors font-medium">
-            Mot de passe oublié ?
-          </a>
-          <p class="text-xs text-gray-600">
-            Besoin d'aide ?
-            <a href="#" class="text-gray-800 hover:text-gray-600 font-semibold transition-colors">Contacter le
-              support</a>
-          </p>
-          <p class="text-xs text-gray-600">
-            Vous n'avez pas de compte ?
-            <a href="/register" class="text-sm text-gray-600 hover:text-gray-800 transition-colors font-medium">
-                Inscrivez vous
-            </a>
-          </p>
+        <div class="flex h-12 items-center rounded-[10px] border border-lin bg-papier pr-1 transition-colors focus-within:border-encre focus-within:ring-2 focus-within:ring-sable">
+          <input id="password" v-model="password" :type="showPassword ? 'text' : 'password'" autocomplete="current-password"
+                 placeholder="••••••••" required
+                 class="h-full min-w-0 flex-1 border-0 bg-transparent px-3.5 text-[15px] text-encre outline-none placeholder:text-taupe/70">
+          <AppIconButton :icon="showPassword ? 'eyeOff' : 'eye'"
+                         :label="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+                         @click="showPassword = !showPassword"/>
         </div>
       </div>
 
-      <div class="mt-8 text-center text-xs text-gray-500 flex flex-col gap-1">
-        <p>© 2026 VinoDomia. Tous droits réservés.</p>
-      </div>
+      <p v-if="errorMessage" role="alert"
+         class="m-0 flex items-start gap-2 rounded-[10px] bg-alerte-bg px-3.5 py-3 text-sm text-alerte">
+        <AppIcon name="alert" class="mt-px shrink-0"/>
+        {{ errorMessage }}
+      </p>
+
+      <button type="submit" :disabled="isSubmitting"
+              class="mt-1 flex h-12 cursor-pointer items-center justify-center rounded-[10px] border-0 bg-encre text-[15px] font-medium text-ivoire transition-colors hover:bg-brun disabled:cursor-wait disabled:opacity-70">
+        {{ isSubmitting ? "Connexion en cours…" : "Se connecter" }}
+      </button>
+
+      <p class="m-0 text-[13px] leading-relaxed text-taupe">
+        En vous connectant, vous acceptez nos
+        <NuxtLink to="/conditions-utilisation" class="text-brun underline underline-offset-2 hover:text-bordeaux">conditions d'utilisation</NuxtLink>.
+        Vos données sont traitées conformément à notre
+        <NuxtLink to="/confidentialite" class="text-brun underline underline-offset-2 hover:text-bordeaux">politique de confidentialité</NuxtLink>.
+      </p>
+    </form>
+
+    <div class="flex flex-col gap-3 border-t border-lin pt-6 text-center text-sm text-taupe">
+      <p class="m-0">
+        Pas encore de compte ?
+        <NuxtLink to="/register" class="font-medium text-encre hover:text-bordeaux">Créer un compte</NuxtLink>
+      </p>
+      <p class="m-0">
+        Besoin d'aide ?
+        <a href="#" class="font-medium text-encre hover:text-bordeaux">Contacter le support</a>
+      </p>
     </div>
-  </div>
+  </AuthLayout>
 </template>
-
-<style scoped>
-input:focus {
-  outline: none;
-}
-</style>

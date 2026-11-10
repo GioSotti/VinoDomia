@@ -1,186 +1,43 @@
 <script setup lang="ts">
-const {isAuthenticated: checkAuth, clearToken} = useAuth();
+import {PROFILS, SEARCH_HINT} from '~/utils/navigation'
 
-const value = ref('')
-const isAuthenticated = ref(false);
+const emit = defineEmits<{ (e: 'open-menu'): void }>()
 
-const props = defineProps<{
-  isBurgerMenu: boolean
-}>()
-
-const emit = defineEmits<{ (e: 'update:isBurgerMenu', v: boolean): void }>()
-
-function toggleBurger() {
-  emit('update:isBurgerMenu', !props.isBurgerMenu)
-}
-
-onMounted(() => {
-  isAuthenticated.value = checkAuth()
-});
-
-const logout = async () => {
-  clearToken();
-  window.location.reload();
-};
-
+const {profil} = useProfil()
+const query = ref('')
+const searchHint = computed(() => SEARCH_HINT[profil.value])
 </script>
 
 <template>
-  <div class="search-container">
-    <BaseButton size="icon-md" rounded="md" @click="toggleBurger">
-      <Icon name="material-symbols:menu-rounded" class="size-4"/>
-    </BaseButton>
-    <BaseInput
-        v-model="value"
-        rounded="md"
-        placeholder="Rechercher"
-        class="search-input"
-    >
-    </BaseInput>
+  <div class="flex flex-wrap items-center gap-4 border-b border-lin px-4 py-3.5 sm:px-8">
+    <button type="button" aria-label="Ouvrir le menu"
+            class="flex size-11 items-center justify-center rounded-[10px] text-encre hover:bg-sable lg:hidden"
+            @click="emit('open-menu')">
+      <AppIcon name="menu" :size="20"/>
+    </button>
 
-    <div class="action-buttons">
-      <button class="icon-button notification-button">
-        <img
-            src="/icons/notification.png"
-            alt="Notifications"
-            class="notification-icon"
-        />
-        <span class="notification-badge"></span>
-      </button>
-      <BasePopover>
-        <button class="icon-button user-button">
-          <img
-              src="/icons/utilisateur.png"
-              alt="Profile"
-              class="user-icon"
-          />
+    <div class="flex h-11 min-w-0 max-w-[460px] flex-[1_1_260px] items-center gap-2.5 rounded-[10px] border border-lin bg-papier px-3.5 focus-within:border-taupe">
+      <AppIcon name="search" class="shrink-0 text-taupe" :stroke="2"/>
+      <label for="recherche-globale" class="sr-only">Rechercher</label>
+      <input id="recherche-globale" v-model="query" type="search" :placeholder="searchHint"
+             class="min-w-0 flex-1 border-0 bg-transparent text-[15px] text-encre outline-none placeholder:text-taupe">
+    </div>
+
+    <div class="ml-auto flex flex-wrap items-center gap-3">
+      <div role="group" aria-label="Aperçu du profil" class="flex gap-1 rounded-xl bg-sable p-1">
+        <button v-for="p in PROFILS" :key="p.id" type="button"
+                :aria-pressed="profil === p.id"
+                class="h-10 cursor-pointer rounded-[9px] border-0 px-3.5 text-sm font-medium transition-colors"
+                :class="profil === p.id ? 'bg-papier text-encre' : 'bg-transparent text-taupe-fonce hover:text-encre'"
+                @click="profil = p.id">
+          {{ p.label }}
         </button>
-        <template #content>
-          <div class="p-4 gap-5 flex flex-col">
-            <div v-if="isAuthenticated">
-              <p class="text-2xl text-gray-700 font-black text-center pb-2">User</p>
-              <BaseButton size="md" variant="default"
-                          class="w-full mt-2 justify-between bg-gray-100 rounded-md items-center">
-                <Icon name="solar:settings-bold" class="mr-2 size-5"/>
-                Paramètres
-              </BaseButton>
-              <BaseButton size="md" variant="default" @click="logout"
-                          class="w-full mt-2 justify-between bg-gray-100 rounded-md items-center">
-                <Icon name="solar:logout-2-bold" class="mr-2 size-5"/>
-                Se déconnecter
-              </BaseButton>
-            </div>
-            <div v-else>
-              <BaseButton size="md" variant="default" @click="navigateTo('/login')"
-                          class="w-full mt-2 justify-between bg-gray-100 rounded-md items-center">
-                <Icon name="solar:login-2-bold" class="mr-2 size-5"/>
-                Se Connecter
-              </BaseButton>
-              <BaseButton size="md" variant="default" @click="navigateTo('/register')"
-                          class="w-full mt-2 justify-between bg-gray-100 rounded-md items-center">
-                <Icon name="solar:user-plus-bold" class="mr-2 size-5"/>
-                S'inscrire
-              </BaseButton>
-            </div>
-            <div class="bg-gray-300 w-full h-px"></div>
-            <div class="flex flex-row items-center justify-around">
-              <h2 class="text-md">Changer de Theme : </h2>
-              <BaseThemeSystem/>
-            </div>
-          </div>
-        </template>
-      </BasePopover>
-      <span class="user-badge"></span>
+      </div>
+
+      <button type="button" aria-label="Notifications"
+              class="flex size-11 cursor-pointer items-center justify-center rounded-[10px] border-0 bg-transparent text-encre hover:bg-sable">
+        <AppIcon name="bell" :size="20"/>
+      </button>
     </div>
   </div>
 </template>
-
-<style scoped>
-.notification-icon {
-  width: 20px;
-  height: 20px;
-}
-
-.user-icon {
-  width: 20px;
-  height: 20px;
-}
-
-.search-container {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 16px;
-  background-color: white;
-  border-bottom: 3px solid rgba(0, 0, 0, 0.1);
-}
-
-.search-input {
-  flex: 1;
-  max-width: 600px;
-}
-
-.search-input :deep(input) {
-  background-color: #f5f5f5;
-  border: none;
-  padding: 8px 12px 8px 40px;
-}
-
-.action-buttons {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-left: auto;
-}
-
-.icon-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  position: relative;
-  transition: background-color 0.2s;
-}
-
-.icon-button:hover {
-  background-color: #f5f5f5;
-}
-
-.notification-button {
-  width: 36px;
-  height: 36px;
-}
-
-.notification-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-}
-
-.notification-badge svg {
-  width: 20px;
-  height: 20px;
-  color: #6b7280;
-}
-
-
-.user-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-}
-
-.user-badge svg {
-  width: 20px;
-  height: 20px;
-  color: #6b7280;
-}
-</style>

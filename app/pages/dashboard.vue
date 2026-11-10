@@ -1,153 +1,167 @@
 <script setup lang="ts">
-
-const name = ref("SCEA Château Montfin");
-const unpayedBillsAmount = ref(153);
-const tarifsUpdated = ref(31);
-const ordersAmount = ref(20);
+import type {OrderStatus} from '~/utils/status'
+import type {IconName, Profil} from '~/utils/navigation'
 
 definePageMeta({
-  middleware: "auth",
-});
+  middleware: 'auth',
+})
 
-const ongoingActivities = ref([{
-  id: 0,
-  name: "test",
-  remainingBills: 0,
-  fileName: "SCEA Château Montfin",
-  date: new Date("DD-MM-YYYY"),
-}, {
-  id: 1,
-  name: "test",
-  remainingBills: 0,
-  fileName: "SCEA Château Montfin",
-  date: new Date("DD-MM-YYYY"),
-}, {
-  id: 2,
-  name: "test",
-  remainingBills: 0,
-  fileName: "SCEA Château Montfin",
-  date: new Date("DD-MM-YYYY"),
-}, {
-  id: 3,
-  name: "test",
-  remainingBills: 0,
-  fileName: "SCEA Château Montfin",
-  date: new Date("DD-MM-YYYY"),
-}, {
-  id: 4,
-  name: "test",
-  remainingBills: 0,
-  fileName: "SCEA Château Montfin",
-  date: new Date("DD-MM-YYYY"),
-}, {
-  id: 5,
-  name: "test",
-  remainingBills: 0,
-  fileName: "SCEA Château Montfin",
-  date: new Date("DD-MM-YYYY"),
-},
-]);
+const {profil} = useProfil()
+
+const HEAD: Record<Profil, { eyebrow: string, title: string, cta: string, to?: string }> = {
+  admin: {eyebrow: 'Pilotage', title: 'Tableau de bord', cta: 'Nouvelle action', to: '/commercial_actions'},
+  vendeur: {eyebrow: 'Comptoir', title: 'Bonne journée au comptoir', cta: 'Nouvelle vente', to: '/entrees_sorties_caisse'},
+  vigneron: {eyebrow: 'Espace vigneron', title: 'SCEA Château Montfin', cta: 'Ajouter une cuvée'},
+}
+const head = computed(() => HEAD[profil.value])
+
+type Order = { who: string, meta: string, status: OrderStatus, total: string }
+
+const stats = {unpaidBills: 153, pricesToReview: 31, ordersThisMonth: 20}
+
+const purchaseOrders: Order[] = [
+  {who: 'Fournisseur A', meta: '1 juin 2024 · 5 articles', status: 'En cours', total: '300,00 €'},
+  {who: 'Fournisseur B', meta: '5 juin 2024 · 7 articles', status: 'Livré', total: '750,00 €'},
+  {who: 'Fournisseur C', meta: '10 juin 2024 · 6 articles', status: 'Annulé', total: '500,00 €'},
+]
+
+const stockMoves = [
+  {ref: 'PR001', reason: 'Régularisation annuelle', date: '12/10/2026', qty: '0 u.'},
+  {ref: 'PR002', reason: 'Offert à un client', date: '12/10/2026', qty: '3 L'},
+  {ref: 'PR003', reason: 'Transvasement', date: '12/10/2026', qty: '1,5 L'},
+]
+
+const quickActions: { title: string, sub: string, icon: IconName, to: string, primary?: boolean }[] = [
+  {title: 'Encaisser une vente', sub: 'Ouvrir la caisse', icon: 'card', to: '/entrees_sorties_caisse', primary: true},
+  {title: 'Trouver un vin', sub: 'Scanner ou rechercher', icon: 'scan', to: '/products'},
+  {title: 'Nouveau client', sub: 'Créer une fiche', icon: 'users', to: '/clients'},
+]
+
+const recentClients = [
+  {ini: 'JD', name: 'Jean Dupont', city: 'Paris', tel: '06 12 34 56 78'},
+  {ini: 'MC', name: 'Marie Curie', city: 'Lyon', tel: '06 98 76 54 32'},
+  {ini: 'IN', name: 'Isaac Newton', city: 'Toulouse', tel: '06 76 54 32 10'},
+]
+
+const receivedOrders: Order[] = [
+  {who: 'BC-0001', meta: '1 juin 2024 · 5 articles', status: 'En cours', total: '300,00 €'},
+  {who: 'BC-0002', meta: '5 juin 2024 · 7 articles', status: 'Livré', total: '750,00 €'},
+  {who: 'BC-0003', meta: '10 juin 2024 · 6 articles', status: 'Annulé', total: '500,00 €'},
+]
 </script>
 
 <template>
   <AppOverlay>
-    <!-- Page content -->
-    <div class="flex flex-col w-full p-8 gap-10">
-      <!-- First content top row -->
-      <div class="flex flex-row flex-wrap w-full text-black font-bold text-3xl items-center justify-between gap-2">
-        <h1>Dossier : {{ name }}</h1>
-        <div class="flex flex-row gap-2">
-          <BaseButton size="md" variant="none" class="border border-black">
-            <Icon name="solar:bell-outline" class="size-5"/>
-          </BaseButton>
-          <BaseButton size="md" variant="primary">
-            Nouvelle Action
-          </BaseButton>
+    <div class="box-border flex w-full flex-col gap-7 px-4 pt-9 pb-12 sm:px-8">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div class="flex flex-col gap-2">
+          <p class="m-0 text-xs font-medium uppercase tracking-[0.16em] text-taupe">{{ head.eyebrow }}</p>
+          <h1 class="m-0 font-serif text-[36px] font-normal leading-tight">{{ head.title }}</h1>
+        </div>
+        <NuxtLink :to="head.to ?? '#'"
+                  class="flex h-11 items-center gap-2 rounded-[10px] bg-encre px-[18px] text-[15px] font-medium text-ivoire no-underline hover:bg-brun">
+          <AppIcon name="plus" :stroke="2"/>
+          {{ head.cta }}
+        </NuxtLink>
+      </div>
+
+      <div v-if="profil === 'admin'" class="flex flex-col gap-4">
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(min(220px,100%),1fr))] gap-4">
+          <DashboardStatCard label="Factures impayées" :value="stats.unpaidBills" tag="À traiter" tag-tone="alerte"
+                             link-label="Voir les factures" to="/bills"/>
+          <DashboardStatCard label="Tarifs à revoir" :value="stats.pricesToReview" tag="Cette semaine"
+                             tag-tone="attention" link-label="Mettre à jour" to="/tarifs"/>
+          <DashboardStatCard label="Commandes ce mois" :value="stats.ordersThisMonth" link-label="Voir les commandes"
+                             to="/purchase_order" dark/>
+        </div>
+
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] gap-4">
+          <DashboardPanel title="Bons de commande" link-label="Tout voir" to="/purchase_order">
+            <div v-for="o in purchaseOrders" :key="o.who" class="flex items-center gap-3 py-3">
+              <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+                <p class="m-0 text-[15px] font-medium">{{ o.who }}</p>
+                <p class="m-0 text-[13px] text-taupe">{{ o.meta }}</p>
+              </div>
+              <DashboardStatusPill :status="o.status"/>
+              <p class="m-0 w-[88px] text-right text-[15px] font-medium tabular-nums">{{ o.total }}</p>
+            </div>
+          </DashboardPanel>
+
+          <DashboardPanel title="Sorties de stock" link-label="Tout voir" to="/stock_removal">
+            <div v-for="m in stockMoves" :key="m.ref" class="flex items-center gap-3 py-3">
+              <p class="m-0 w-[60px] text-[13px] font-medium text-taupe">{{ m.ref }}</p>
+              <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+                <p class="m-0 text-[15px] font-medium">{{ m.reason }}</p>
+                <p class="m-0 text-[13px] text-taupe">{{ m.date }}</p>
+              </div>
+              <p class="m-0 text-right text-[15px] font-medium tabular-nums">{{ m.qty }}</p>
+            </div>
+          </DashboardPanel>
         </div>
       </div>
-      <!-- Cards -->
-      <div class="flex flex-col gap-5">
-        <div class="flex flex-col xl:flex-row gap-6">
-          <NuxtLink to="/bills" variant="none"
-                    class=" bg-red-500 border border-red-800 flex flex-col w-full gap-2 text-white rounded-md">
-            <div class="py-3 px-4">
-              <!-- First row BaseCard content -->
-              <div class="flex flex-row w-full gap-6 justify-between items-center">
-                <h2 class="font-medium text-xl">Factures Impayées</h2>
-                <BaseIconBox variant="none" class="bg-red-400">
-                  <Icon name="solar:danger-triangle-bold" class="size-5 bg-white"/>
-                </BaseIconBox>
-              </div>
-              <h2 class="text-5xl font-semibold">{{ unpayedBillsAmount }}</h2>
-              <h3>Attention requise</h3></div>
-            <!-- Bottom part BaseCard content -->
-            <div class="flex flex-row gap-2 items-center bg-red-400 w-full p-3 rounded-b-md">
-              <Icon name="solar:info-circle-bold"/>
-              <h3>Factures impayées</h3>
-            </div>
-          </NuxtLink>
-          <BaseCard variant="none" rounded="md"
-                    class=" bg-white border border-yellow-600 flex flex-col w-full gap-2 justify-between">
-            <div class="py-3 px-4 text-black">
-              <!-- First row BaseCard content -->
-              <div class="flex flex-row w-full gap-6 justify-between items-center">
-                <h2 class="font-medium text-xl">Mise à jour Tarifs</h2>
-                <BaseIconBox variant="none" class="bg-yellow-100">
-                  <Icon name="solar:star-bold" class="size-5 bg-yellow-600"/>
-                </BaseIconBox>
-              </div>
-              <h2 class="text-5xl font-semibold">{{ tarifsUpdated }}</h2>
-            </div>
-            <!-- Bottom part BaseCard content -->
-            <div class="flex flex-row gap-2 items-center bg-yellow-100 w-full p-3 rounded-b-md text-yellow-600">
-              <Icon name="solar:info-circle-bold"/>
-              <h3>Factures impayées</h3>
-            </div>
-          </BaseCard>
-          <BaseCard variant="none" rounded="md"
-                    class=" bg-white border border-blue-600 flex flex-col w-full gap-2 justify-between">
-            <div class="py-3 px-4 text-black">
-              <!-- First row BaseCard content -->
-              <div class="flex flex-row w-full gap-6 justify-between items-center">
-                <h2 class="font-medium text-xl">Commandes ce mois</h2>
-                <BaseIconBox variant="none" class="bg-blue-100">
-                  <Icon name="solar:danger-triangle-bold" class="size-5 bg-blue-600"/>
-                </BaseIconBox>
-              </div>
-              <h2 class="text-5xl font-semibold">{{ ordersAmount }}</h2>
-            </div>
-            <!-- Bottom part BaseCard content -->
-            <div class="flex flex-row gap-2 items-center bg-blue-100 w-full p-3 rounded-b-md text-blue-600">
-              <Icon name="solar:info-circle-bold"/>
-              <h3>Factures impayées</h3>
-            </div>
-          </BaseCard>
-        </div>
-        <!-- Ongoing activities-->
-        <BaseCard variant="none" rounded="md"
-                  class="px-5 py-4 bg-white border border-gray-300/50 flex flex-col w-full h-96 gap-2">
-          <h2 class="text-black text-xl font-bold pb-6 shrink-0">Actions courantes récentes</h2>
-          <div class="flex flex-col w-full gap-3 overflow-y-scroll flex-1">
-            <div v-for="(activity, key) in ongoingActivities" :key="key" class="flex flex-col w-full gap-3">
-              <div class="flex flex-row w-full gap-2 items-center justify-between">
-                <div class="flex flex-row items-center gap-2">
-                  <BaseIconBox rounded="full" variant="none" class="bg-gray-300" size="sm">
-                    <Icon name="solar:file-bold" class="size-6 bg-gray-500"/>
-                  </BaseIconBox>
-                  <div class="flex flex-col">
-                    <h3 class="text-black font-semibold">{{ activity.name }}</h3>
-                    <h4 class="text-gray-500">{{ activity.remainingBills }} + actions</h4>
-                  </div>
-                </div>
-                <h3 class="text-black font-semibold">{{ activity.fileName }}</h3>
-                <h4 class="text-gray-500">{{ activity.date }}</h4>
-              </div>
-              <div class="w-full h-px bg-gray-300"
-                   :class="{ 'hidden': key === ongoingActivities.length-1, 'block' : key !== ongoingActivities.length-1 }"></div>
-            </div>
-          </div>
-        </BaseCard>
 
+      <div v-else-if="profil === 'vendeur'" class="flex flex-col gap-4">
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(min(220px,100%),1fr))] gap-4">
+          <NuxtLink v-for="a in quickActions" :key="a.title" :to="a.to"
+                    class="box-border flex min-h-[132px] flex-col justify-between gap-4 rounded-[14px] p-5 no-underline transition-colors"
+                    :class="a.primary ? 'bg-encre text-ivoire hover:bg-brun' : 'border border-lin bg-papier text-encre hover:border-grege'">
+            <AppIcon :name="a.icon" :size="26" :stroke="1.6"/>
+            <span class="flex flex-col gap-0.5">
+              <span class="font-serif text-[22px]">{{ a.title }}</span>
+              <span class="text-sm" :class="a.primary ? 'text-grege' : 'text-taupe'">{{ a.sub }}</span>
+            </span>
+          </NuxtLink>
+        </div>
+
+        <DashboardPanel title="Clients récents" link-label="Tous les clients" to="/clients">
+          <div v-for="c in recentClients" :key="c.name" class="flex flex-wrap items-center gap-3 py-3">
+            <div class="flex size-10 items-center justify-center rounded-full bg-sable font-serif text-[15px]">
+              {{ c.ini }}
+            </div>
+            <div class="flex min-w-0 flex-[1_1_180px] flex-col gap-0.5">
+              <p class="m-0 text-[15px] font-medium">{{ c.name }}</p>
+              <p class="m-0 text-[13px] text-taupe">{{ c.city }}</p>
+            </div>
+            <p class="m-0 text-sm text-brun tabular-nums">{{ c.tel }}</p>
+            <NuxtLink to="/clients" class="px-1 py-2.5 text-sm font-medium text-encre hover:text-bordeaux">
+              Ouvrir la fiche
+            </NuxtLink>
+          </div>
+        </DashboardPanel>
+      </div>
+
+      <div v-else class="flex flex-col gap-4">
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(min(220px,100%),1fr))] gap-4">
+          <DashboardStatCard label="Commandes en cours" :value="1" link-label="Préparer l'envoi"/>
+          <DashboardStatCard label="Livrées" :value="1" link-label="Voir les livraisons"/>
+          <DashboardStatCard label="Montant commandé" value="1 050 €" link-label="Mes factures" dark/>
+        </div>
+
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] gap-4">
+          <DashboardPanel title="Bons de commande reçus" link-label="Tout voir">
+            <div v-for="o in receivedOrders" :key="o.who" class="flex items-center gap-3 py-3">
+              <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+                <p class="m-0 text-[15px] font-medium">{{ o.who }}</p>
+                <p class="m-0 text-[13px] text-taupe">{{ o.meta }}</p>
+              </div>
+              <DashboardStatusPill :status="o.status"/>
+              <p class="m-0 w-[88px] text-right text-[15px] font-medium tabular-nums">{{ o.total }}</p>
+            </div>
+          </DashboardPanel>
+
+          <section class="flex flex-col items-start justify-center gap-3 rounded-[14px] border border-dashed border-grege bg-papier p-7">
+            <AppIcon name="wine" :size="32" :stroke="1.5" class="text-taupe"/>
+            <h2 class="m-0 font-serif text-[22px] font-normal">Présentez vos cuvées</h2>
+            <p class="m-0 max-w-[380px] text-[15px] leading-[1.55] text-taupe">
+              Ajoutez vos vins avec fiche, millésime et tarif pro : le caviste les retrouve directement dans son
+              catalogue.
+            </p>
+            <button type="button"
+                    class="h-11 cursor-pointer rounded-[10px] border border-encre bg-transparent px-[18px] text-[15px] font-medium text-encre hover:bg-sable">
+              Ajouter une cuvée
+            </button>
+          </section>
+        </div>
       </div>
     </div>
   </AppOverlay>

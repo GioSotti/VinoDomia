@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt'
 import { prisma } from '../utils/prisma'
 import { signToken } from '../utils/jwt'
+import { TERMS_VERSION } from '#shared/utils/legal'
 import type { LoginPayload, RegisterPayload } from '#shared/types/auth'
 
 const SALT_ROUNDS = 10
@@ -35,6 +36,8 @@ export async function register({ email, password, name }: RegisterPayload): Prom
       name,
       password: await bcrypt.hash(password, SALT_ROUNDS),
       role: 0,
+      termsAcceptedAt: new Date(),
+      termsVersion: TERMS_VERSION,
     },
   })
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {ref} from "vue";
-import {parsePrice} from "~/utils/parsePriceUtils";
+import type {TableColumn} from "~/utils/table";
+import {ORDER_STATUS_TONE, type OrderStatus} from "~/utils/status";
 
 const supplier = ref([
   {
@@ -150,7 +150,30 @@ const modalClientDetails = ref<{
 
 const modalCreationPurchaseOrder = ref(false);
 
-const value = ref("");
+const query = ref("");
+
+const columns: TableColumn[] = [
+  {key: "id", label: "N°"},
+  {key: "supplier", label: "Fournisseur"},
+  {key: "date", label: "Date", hideBelow: "md"},
+  {key: "items", label: "Articles", align: "right", hideBelow: "lg"},
+  {key: "status", label: "Statut"},
+  {key: "total", label: "Total", align: "right"},
+];
+
+const filteredOrders = computed(() => filterRows(purchaseOrders.value, query.value, ["supplier", "status", "date"]));
+
+const isEditing = computed(() => purchaseOrders.value.some(o => o.id === modalClientDetails.value.id));
+
+const orderNumber = (id: number) => `BC-${String(id).padStart(4, "0")}`;
+const itemCount = (items: ItemEntry[]) => items.reduce((acc, entry) => acc + entry.quantity, 0);
+const modalTotal = computed(() => modalClientDetails.value.items.reduce((acc, e) => acc + e.quantity * e.item.price, 0));
+
+const newOrder = () => {
+  closeModal();
+  modalClientDetails.value.status = "En cours";
+  modalCreationPurchaseOrder.value = true;
+};
 
 const openModal = (client: {
   id: number;
@@ -177,7 +200,7 @@ const openModal = (client: {
 const closeModal = () => {
   modalCreationPurchaseOrder.value = false;
   modalClientDetails.value = {
-    id: purchaseOrders.value.length,
+    id: Math.max(0, ...purchaseOrders.value.map(o => o.id)) + 1,
     supplier: '',
     date: '',
     total: 0,
@@ -219,145 +242,110 @@ const removeItemAt = (index: number) => {
 </script>
 
 <template>
-  <AppOverlay :focus-page="0" :focus-under-page="2">
-    <!-- Page content -->
-    <div class="flex flex-col w-full p-8 gap-5 h-full">
-      <h1 class="text-black font-bold text-3xl">Bon de commande</h1>
-      <BaseCard variant="none" rounded="md"
-                class="px-5 py-4 bg-white border border-gray-300/50 flex flex-col w-full h-150 gap-2">
-        <div class="flex flex-row w-full gap-4 items-center mb-6">
-          <BaseInput
-              v-model="value"
-              rounded="md"
-              placeholder="Rechercher un bon de commande..."
-          />
-          <BaseButton size="md" variant="primary" class="w-fit flex gap-2">
-            <Icon name="ic:baseline-search" class="size-5"/>
-            Rechercher
-          </BaseButton>
-          <span class="h-full w-0.5 bg-gray-500"></span>
-          <BaseButton size="md" variant="primary" class="w-fit flex"
-                      @click="modalCreationPurchaseOrder = !modalCreationPurchaseOrder">
-            <Icon name="ic:round-add-circle-outline" class="size-5"/>
-            Ajouter un client
-          </BaseButton>
-        </div>
-        <span class="w-full h-px bg-gray-300"></span>
-        <div class="flex flex-col gap-4 text-black overflow-auto w-full">
-          <div v-for="(purchaseOrder, key) in purchaseOrders" :key="purchaseOrder.id"
-               class="flex flex-col w-full justify-between gap-3">
-            <div class="grid grid-cols-[2fr_2fr_2fr_2fr_1fr_auto] w-full gap-4 items-center justify-between pr-2 px-2">
-              <div class="flex flex-col">
-                <h3 class="text-black font-light text-sm">Fournisseurs :</h3>
-                <h2 class="text-black">{{ purchaseOrder.supplier }}</h2>
-              </div>
-              <div class="flex flex-col">
-                <h3 class="text-black font-light text-sm">Date :</h3>
-                <h2 class="text-black">{{ purchaseOrder.date }}</h2>
-              </div>
-              <div class="flex flex-col">
-                <h3 class="text-black font-light text-sm">Total : </h3>
-                <h2 class="text-black">{{ parsePrice(purchaseOrder.total, "€") }}</h2>
-              </div>
-              <div class="flex flex-col">
-                <h3 class="text-black font-light text-sm">Status :</h3>
-                <h2 class="text-black">{{ purchaseOrder.status }}</h2>
-              </div>
-              <div class="flex flex-col">
-                <h3 class="text-black font-light text-sm">Items :</h3>
-                <h2>{{
-                    purchaseOrder.items.reduce((accumulator, currentValue) => accumulator + currentValue.quantity,
-                        0,)
-                  }}</h2>
-              </div>
-              <div class="flex flex-row gap-2">
-                <BaseButton size="sm" variant="primary" @click.stop="openModal(purchaseOrder)">
-                  <Icon name="ic:baseline-edit" class="size-4"/>
-                </BaseButton>
-                <BaseButton size="sm" variant="destructive" @click.stop="deletePurchaseOrder(purchaseOrder.id)">
-                  <Icon name="ic:baseline-delete" class="size-4"/>
-                </BaseButton>
-              </div>
-            </div>
-            <div class="w-full h-[0.5px] bg-gray-300" :class="{ 'hidden': key === purchaseOrders.length-1 }"></div>
+  <AppOverlay>
+    <AppPage eyebrow="Cave" title="Bons de commande">
+      <template #actions>
+        <AppButton icon="plus" @click="newOrder">Nouveau bon de commande</AppButton>
+      </template>
+
+      <AppTable :columns="columns" :rows="filteredOrders" :row-key="o => o.id"
+                :count-label="['bon de commande', 'bons de commande']" empty-label="Aucun bon de commande ne correspond à la recherche.">
+        <template #toolbar>
+          <AppSearchField v-model="query" placeholder="Rechercher un fournisseur, un statut…" class="max-w-[460px]"/>
+        </template>
+        <template #cell-id="{ row }">
+          <span class="text-[13px] font-medium text-taupe">{{ orderNumber(row.id) }}</span>
+        </template>
+        <template #cell-supplier="{ row }">
+          <div class="flex flex-col">
+            <span class="font-medium">{{ row.supplier }}</span>
+            <span class="text-[13px] text-taupe">{{ row.destination.name }}</span>
           </div>
+        </template>
+        <template #cell-date="{ row }">
+          <span class="whitespace-nowrap text-brun tabular-nums">{{ formatDate(row.date) }}</span>
+        </template>
+        <template #cell-items="{ row }">
+          <span class="text-brun tabular-nums">{{ itemCount(row.items) }}</span>
+        </template>
+        <template #cell-status="{ row }">
+          <AppBadge :tone="ORDER_STATUS_TONE[row.status as OrderStatus] ?? 'neutre'">{{ row.status }}</AppBadge>
+        </template>
+        <template #cell-total="{ row }">
+          <span class="whitespace-nowrap font-medium tabular-nums">{{ formatEuro(row.total) }}</span>
+        </template>
+        <template #actions="{ row }">
+          <AppIconButton icon="pencil" label="Modifier" @click="openModal(row)"/>
+          <AppIconButton icon="trash" label="Supprimer" tone="danger" @click="deletePurchaseOrder(row.id)"/>
+        </template>
+      </AppTable>
+    </AppPage>
+
+    <AppModal :is-visible="modalCreationPurchaseOrder"
+              :title="isEditing ? `Bon de commande ${orderNumber(modalClientDetails.id)}` : 'Nouveau bon de commande'"
+              @close-modal="closeModal" @save-modal="savePurchaseOrder">
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4 sm:flex-row">
+          <AppField label="Fournisseur">
+            <BaseSelect v-model="modalClientDetails.supplier" placeholder="Choisir un fournisseur…">
+              <BaseSelectItem v-for="s in supplier" :key="s.id" :value="s.name">{{ s.name }}</BaseSelectItem>
+            </BaseSelect>
+          </AppField>
+          <AppField label="Date" class="sm:max-w-48">
+            <BaseInput v-model="modalClientDetails.date" type="date" rounded="md"/>
+          </AppField>
         </div>
-      </BaseCard>
-    </div>
-  </AppOverlay>
-  <AppModal :is-visible="modalCreationPurchaseOrder" @close-modal="closeModal" @save-modal="savePurchaseOrder"
-         :firstButtonText="'Save'" :secondButtonText="'Cancel'">
-    <div class="flex flex-col w-full h-140 gap-4 overflow-auto px-4 py-2">
-      <h2 class="text-black font-bold text-2xl mb-4">Créer un nouveau bon de commande</h2>
-      <div class="flex flex-col gap-4 text-black">
-        <div class="flex flex-row w-full gap-2 items-center">
-          <div class="flex flex-col w-full">
-            <label for="supplier">Fournisseur :</label>
-            <BaseSelect v-model="modalClientDetails.supplier" placeholder="Select a value...">
-              <BaseSelectItem v-for="supplier in supplier" :key="supplier.id" :value="supplier.name">
-                {{ supplier.name }}
+        <div class="flex flex-col gap-4 sm:flex-row">
+          <AppField label="Destination">
+            <BaseSelect v-model="modalClientDetails.destination" placeholder="Choisir une destination…">
+              <BaseSelectItem v-for="destination in destinations" :key="destination.id" :value="destination">
+                {{ destination.name }} - {{ destination.address }}
               </BaseSelectItem>
             </BaseSelect>
+          </AppField>
+          <AppField label="Statut" class="sm:max-w-48">
+            <BaseSelect v-model="modalClientDetails.status" placeholder="Statut…">
+              <BaseSelectItem value="En cours">En cours</BaseSelectItem>
+              <BaseSelectItem value="Livré">Livré</BaseSelectItem>
+              <BaseSelectItem value="Annulé">Annulé</BaseSelectItem>
+            </BaseSelect>
+          </AppField>
+        </div>
+
+        <div class="flex flex-col gap-3 pt-2">
+          <h3 class="m-0 font-serif text-lg font-normal">Articles</h3>
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <BaseSelect v-model="itemValue" placeholder="Choisir un produit…" class="w-full">
+              <BaseSelectItem v-for="item in itemsList" :key="item.id" :value="item">
+                {{ item.name }} - {{ formatEuro(item.price) }}
+              </BaseSelectItem>
+            </BaseSelect>
+            <AppButton variant="secondary" icon="plus" @click="addItem">Ajouter</AppButton>
           </div>
-          <div class="flex flex-col w-1/3">
-            <label for="date">Date :</label>
-            <BaseInput type="date" v-model="modalClientDetails.date"/>
-          </div>
-        </div>
-        <div class="flex flex-col w-full">
-          <label for="destination">Destination :</label>
-          <BaseSelect v-model="modalClientDetails.destination" placeholder="Select a value...">
-            <BaseSelectItem v-for="destination in destinations" :key="destination.id" :value="destination">
-              {{ destination.name }} - {{ destination.address }}
-            </BaseSelectItem>
-          </BaseSelect>
-        </div>
-        <h3 class="text-lg text-center">Ajouter des objets</h3>
-        <div class="flex flex-row w-full gap-2 items-center">
-          <BaseSelect v-model="itemValue" placeholder="Select a value..." class="w-full h-full">
-            <BaseSelectItem v-for="item in itemsList" :key="item.id" :value="item">
-              <h4>{{ item.name }} - {{ parsePrice(item.price, "€") }}</h4>
-            </BaseSelectItem>
-          </BaseSelect>
-          <BaseButton @click="addItem" class="w-fit flex">
-            <Icon name="ic:round-add-circle-outline" class="size-5"/>
-            Ajouter un objet
-          </BaseButton>
-        </div>
-        <BaseCard class="px-4 bg-background-grey h-full">
-          <div v-for="(entry, key) in modalClientDetails.items" :key="key" class="flex flex-col w-full gap-2 px-2 py-1">
-            <div class="flex flex-row w-full gap-2 items-center">
-              <div class="flex flex-col w-full">
-                <h3 class="text-black font-light text-sm">Item {{ key + 1 }} :</h3>
-                <h2 class="text-black">{{ entry.item.name }}</h2>
+
+          <div class="overflow-hidden rounded-[10px] border border-lin">
+            <p v-if="modalClientDetails.items.length === 0" class="m-0 px-4 py-6 text-center text-sm text-taupe">
+              Aucun article pour l'instant.
+            </p>
+            <div v-for="(entry, key) in modalClientDetails.items" :key="key"
+                 class="flex flex-wrap items-center gap-3 border-t border-lin px-4 py-3 first:border-t-0">
+              <div class="flex min-w-0 flex-[1_1_160px] flex-col">
+                <span class="font-medium">{{ entry.item.name }}</span>
+                <span class="text-[13px] text-taupe">{{ formatEuro(entry.item.price) }} l'unité</span>
               </div>
-              <div class="flex flex-col w-full">
-                <h3 class="text-black font-light text-sm">Qté :</h3>
-                <BaseInputNumber
-                    v-model="entry.quantity"
-                    rounded="sm"
-                    placeholder="Quantity"
-                    :min="1"
-                    class="w-1/5"
-                />
+              <div class="w-28">
+                <BaseInputNumber v-model="entry.quantity" rounded="md" placeholder="Qté" :min="1" aria-label="Quantité"/>
               </div>
-              <div class="flex flex-col w-full items-center">
-                <h3 class="text-black font-light text-sm">Prix : </h3>
-                <h2 class="text-black">{{ parsePrice(entry.item.price * entry.quantity, "€") }}</h2>
-                <h4 class="text-black font-light text-sm" v-if="entry.quantity != 1">{{"Unit : " + parsePrice(entry.item.price, "€")}}</h4>
-              </div>
-              <BaseButton size="sm" variant="destructive" @click.stop="removeItemAt(key)">
-                <Icon name="ic:baseline-delete" class="size-4"/>
-              </BaseButton>
+              <span class="w-24 text-right font-medium tabular-nums">{{ formatEuro(entry.item.price * entry.quantity) }}</span>
+              <AppIconButton icon="trash" label="Retirer l'article" tone="danger" @click="removeItemAt(key)"/>
             </div>
-            <div class="w-full h-px bg-gray-300" :class="{ 'hidden': key === modalClientDetails.items.length-1 }"></div>
+            <div v-if="modalClientDetails.items.length" class="flex justify-between border-t border-lin bg-ivoire px-4 py-3">
+              <span class="text-sm font-medium uppercase tracking-[0.12em] text-taupe">Total</span>
+              <span class="font-serif text-xl tabular-nums">{{ formatEuro(modalTotal) }}</span>
+            </div>
           </div>
-        </BaseCard>
+        </div>
       </div>
-    </div>
-  </AppModal>
+    </AppModal>
+  </AppOverlay>
 </template>
-
-<style scoped>
-
-</style>

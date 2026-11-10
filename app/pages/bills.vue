@@ -1,152 +1,96 @@
 <script setup lang="ts">
+import type {TableColumn} from "~/utils/table";
+import type {BadgeTone} from "~/utils/status";
 
-import {ref, watch} from "vue";
+type BillStatus = "En avance" | "En retard";
 
-const name = ref("Factures impayées");
 const remainingBills = ref(153);
 
 const bills = ref([
-  {
-    id: 0,
-    number: "INV-001",
-    client: "Client A",
-    date: "01-01-2024",
-    amount: "$500",
-    status: "En avance",
-    checked: false,
-  },
-  {
-    id: 1,
-    number: "INV-002",
-    client: "Client B",
-    date: "05-01-2024",
-    amount: "$750",
-    status: "En retard",
-    checked: false,
-  },
-  {
-    id: 2,
-    number: "INV-003",
-    client: "Client C",
-    date: "10-01-2024",
-    amount: "$300",
-    status: "En retard",
-    checked: false,
-  },
-  {
-    id: 3,
-    number: "INV-004",
-    client: "Client D",
-    date: "15-01-2024",
-    amount: "$450",
-    status: "En avance",
-    checked: false,
-  },
+  {id: 0, number: "INV-001", client: "Client A", date: "2024-01-01", amount: 500, status: "En avance" as BillStatus, checked: false},
+  {id: 1, number: "INV-002", client: "Client B", date: "2024-01-05", amount: 750, status: "En retard" as BillStatus, checked: false},
+  {id: 2, number: "INV-003", client: "Client C", date: "2024-01-10", amount: 300, status: "En retard" as BillStatus, checked: false},
+  {id: 3, number: "INV-004", client: "Client D", date: "2024-01-15", amount: 450, status: "En avance" as BillStatus, checked: false},
 ]);
-const allBills = ref(false);
 
-watch(allBills, (val) => {
-  bills.value.forEach(b => b.checked = val);
+const STATUS_TONE: Record<BillStatus, BadgeTone> = {
+  "En avance": "succes",
+  "En retard": "alerte",
+};
+
+const query = ref("");
+const statusFilter = ref<"" | BillStatus>("");
+
+const columns: TableColumn[] = [
+  {key: "select", label: "Sélection", class: "w-px"},
+  {key: "number", label: "Numéro"},
+  {key: "client", label: "Client"},
+  {key: "date", label: "Date", hideBelow: "md"},
+  {key: "amount", label: "Montant", align: "right"},
+  {key: "status", label: "Statut", align: "right"},
+];
+
+const filteredBills = computed(() =>
+    filterRows(bills.value, query.value, ["number", "client"])
+        .filter(bill => !statusFilter.value || bill.status === statusFilter.value)
+);
+
+const allChecked = computed({
+  get: () => filteredBills.value.length > 0 && filteredBills.value.every(bill => bill.checked),
+  set: (value: boolean) => filteredBills.value.forEach(bill => bill.checked = value),
 });
 
-const fields = reactive({
-  first: '',
-})
-
-const filters = [
-  'Filter 1',
-  'Filter 2',
-  'Filter 3',
-  'Filter 4',
-]
-
+const selectedCount = computed(() => bills.value.filter(bill => bill.checked).length);
 </script>
 
 <template>
-  <AppOverlay :focus-page="0">
-    <div class="flex flex-col w-full p-8 gap-10">
-      <div class="flex flex-row flex-wrap w-full text-black font-bold text-3xl items-center justify-between gap-2">
-        <h1>{{ name }} détail</h1>
-        <div class="flex flex-row gap-2">
-          <BaseButton size="md" variant="none" class="border border-black">
-            <Icon name="solar:bell-outline" class="size-5"/>
-          </BaseButton>
-          <BaseButton size="md" variant="primary">Nouvelle Action</BaseButton>
-        </div>
-      </div>
+  <AppOverlay>
+    <AppPage :eyebrow="`${remainingBills} à traiter`" title="Factures impayées">
+      <template #actions>
+        <AppButton variant="ghost" icon="download">Exporter</AppButton>
+      </template>
 
-      <BaseCard variant="none" rounded="md"
-                class="py-4 bg-white border border-gray-300/50 flex flex-col w-full h-auto gap-2 px-0 max-w-none min-w-0">
-        <div class="px-5">
-          <h2 class="text-black text-xl font-bold pb-6 shrink-0">{{ name }} ({{ remainingBills }})</h2>
-          <div class="flex flex-row justify-between w-full mb-4 gap-4 shrink-0">
-            <div class="w-1/4 min-w-0">
-              <BaseAutocomplete placeholder="Ex: nom du client" v-model="fields.first">
-                <BaseAutocompleteItem v-for="item in filters" :key="item" :value="item">
-                  {{ item }}
-                </BaseAutocompleteItem>
-              </BaseAutocomplete>
-            </div>
-            <div class="flex flex-row justify-between gap-2">
-              <BaseDropdown variant="default" label="Filtres">
-                <BaseDropdownItem>Filtre 1</BaseDropdownItem>
-                <BaseDropdownItem>Filtre 2</BaseDropdownItem>
-                <BaseDropdownItem>Filtre 3</BaseDropdownItem>
-                <BaseDropdownItem>Filtre 4</BaseDropdownItem>
-              </BaseDropdown>
-              <BaseDropdown variant="default" label="Export">
-                <BaseDropdownItem>PDF</BaseDropdownItem>
-                <BaseDropdownItem>EXCEL</BaseDropdownItem>
-                <BaseDropdownItem>JSON</BaseDropdownItem>
-              </BaseDropdown>
-            </div>
-          </div>
-        </div>
-
-        <!-- Grid -->
-        <div class="grid items-center w-full py-2 mb-4 font-semibold bg-gray-200 border border-gray-500 gap-x-4
-                      grid-cols-[48px_150px_1fr_120px_120px_120px_48px] px-5">
-          <div class="justify-self-center">
-            <BaseCheckbox v-model="allBills"/>
-          </div>
-          <div class="justify-self-start">Numéro</div>
-          <div class="justify-self-start truncate">Client</div>
-          <div class="justify-self-end">Date</div>
-          <div class="justify-self-end">Montant</div>
-          <div class="justify-self-end">Status</div>
-          <div class="justify-self-center"></div>
-        </div>
-
-        <!-- Rows: same grid template so columns align perfectly -->
-        <div class="flex flex-col w-full gap-4 overflow-y-auto flex-1 min-w-0 px-5">
-          <div v-for="(bill, key) in bills" :key="key"
-               class="grid items-center w-full gap-2 grid-cols-[48px_150px_1fr_120px_120px_120px_48px]">
-            <div class="justify-self-center">
-              <BaseCheckbox v-model="bill.checked"/>
-            </div>
-            <div class="justify-self-start truncate min-w-0">{{ bill.number }}</div>
-            <div class="justify-self-start truncate min-w-0">{{ bill.client }}</div>
-            <div class="justify-self-end truncate min-w-0">{{ bill.date }}</div>
-            <div class="justify-self-end truncate min-w-0">{{ bill.amount }}</div>
-            <div class="justify-self-end truncate min-w-0 px-2 py-1 rounded-2xl"
-                 :class="[{ 'bg-red-100 text-red-800': bill.status === 'En retard', 'bg-green-100 text-green-600': bill.status !== 'En retard' }]">
-              {{ bill.status }}
-            </div>
-            <div class="justify-self-center">
-              <BaseButton variant="none" size="icon-sm" class="p-2">
-                <Icon name="solar:menu-dots-bold" class="size-5 text-gray-500"/>
-              </BaseButton>
-            </div>
-
-            <!-- Separator -->
-            <div :class="[{ 'hidden': key === bills.length - 1 }, 'col-span-full h-px bg-gray-300 w-full']"></div>
-          </div>
-        </div>
-      </BaseCard>
-    </div>
+      <AppTable :columns="columns" :rows="filteredBills" :row-key="b => b.id"
+                :count-label="['facture', 'factures']" empty-label="Aucune facture ne correspond aux filtres.">
+        <template #toolbar>
+          <AppSearchField v-model="query" placeholder="Rechercher un numéro, un client…" class="max-w-[460px]"/>
+          <label class="sr-only" for="status-filter">Statut</label>
+          <select id="status-filter" v-model="statusFilter"
+                  class="h-11 cursor-pointer rounded-[10px] border border-lin bg-papier px-3 text-[15px] text-encre">
+            <option value="">Tous les statuts</option>
+            <option value="En retard">En retard</option>
+            <option value="En avance">En avance</option>
+          </select>
+          <p v-if="selectedCount" class="m-0 ml-auto text-sm text-taupe">
+            {{ selectedCount }} sélectionnée{{ selectedCount > 1 ? "s" : "" }}
+          </p>
+        </template>
+        <template #head-select>
+          <input v-model="allChecked" type="checkbox" aria-label="Tout sélectionner" class="size-4 cursor-pointer accent-encre">
+        </template>
+        <template #cell-select="{ row }">
+          <input v-model="row.checked" type="checkbox" :aria-label="`Sélectionner ${row.number}`"
+                 class="size-4 cursor-pointer accent-encre">
+        </template>
+        <template #cell-number="{ row }">
+          <span class="text-[13px] font-medium text-taupe">{{ row.number }}</span>
+        </template>
+        <template #cell-client="{ row }">
+          <span class="font-medium">{{ row.client }}</span>
+        </template>
+        <template #cell-date="{ row }">
+          <span class="whitespace-nowrap text-brun tabular-nums">{{ formatDate(row.date) }}</span>
+        </template>
+        <template #cell-amount="{ row }">
+          <span class="whitespace-nowrap font-medium tabular-nums">{{ formatEuro(row.amount) }}</span>
+        </template>
+        <template #cell-status="{ row }">
+          <AppBadge :tone="STATUS_TONE[row.status]">{{ row.status }}</AppBadge>
+        </template>
+        <template #actions>
+          <AppIconButton icon="more" label="Plus d'actions"/>
+        </template>
+      </AppTable>
+    </AppPage>
   </AppOverlay>
 </template>
-
-<style scoped>
-
-</style>

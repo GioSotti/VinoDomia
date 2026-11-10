@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import type {TableColumn} from "~/utils/table";
 
 const users = ref([
   {
@@ -115,7 +115,22 @@ const modalClientDetails = ref({
 
 const modalCreationClient = ref(false);
 
-const value = ref("");
+const query = ref("");
+
+const columns: TableColumn[] = [
+  {key: "name", label: "Client"},
+  {key: "city", label: "Localisation", hideBelow: "lg"},
+  {key: "phone1", label: "Téléphone", hideBelow: "md"},
+  {key: "email", label: "Email", hideBelow: "xl"},
+];
+
+const filteredUsers = computed(() => filterRows(users.value, query.value, ["name", "city", "email", "phone1", "phone2", "postCode"]));
+
+const isEditing = computed(() => users.value.some(u => u.id === modalClientDetails.value.id));
+
+const initials = (name: string) => name.split(" ").map(part => part[0]).join("").slice(0, 2).toUpperCase();
+
+const formatPhone = (phone: string) => phone.replace(/(\d{2})(?=\d)/g, "$1 ");
 
 const openModal = (client: {
   id: number;
@@ -136,7 +151,7 @@ const openModal = (client: {
 const closeModal = () => {
   modalCreationClient.value = false;
   modalClientDetails.value = {
-    id: users.value.length,
+    id: Math.max(-1, ...users.value.map(u => u.id)) + 1,
     name: "",
     phone1: "",
     phone2: "",
@@ -165,123 +180,93 @@ const saveClient = () => {
 </script>
 
 <template>
-  <AppOverlay :focus-page="0" :focus-under-page="1">
-    <div class="flex flex-col w-full p-8 gap-5 h-full">
-      <h1 class="text-black font-bold text-3xl">Clients enregistrés</h1>
-      <BaseCard variant="none" rounded="md"
-                class="px-5 py-4 bg-white border border-gray-300/50 flex flex-col w-full h-110 gap-2">
-        <div class="flex flex-row w-full gap-4 items-center mb-6">
-          <BaseInput
-              v-model="value"
-              rounded="md"
-              placeholder="Rechercher un client..."
-          />
-          <BaseButton size="md" variant="primary" class="w-fit flex gap-2">
-            <Icon name="ic:baseline-search" class="size-5"/>
-            Rechercher
-          </BaseButton>
-          <span class="h-full w-0.5 bg-gray-500"></span>
-          <BaseButton size="md" variant="primary" class="w-fit flex"
-                      @click="modalCreationClient = !modalCreationClient">
-            <Icon name="ic:round-add-circle-outline" class="size-5"/>
-            Ajouter un client
-          </BaseButton>
+  <AppOverlay>
+    <AppPage eyebrow="Relation" title="Clients">
+      <template #actions>
+        <AppButton icon="plus" @click="closeModal(); modalCreationClient = true">Nouveau client</AppButton>
+      </template>
+
+      <AppTable :columns="columns" :rows="filteredUsers" :row-key="u => u.id"
+                :count-label="['client', 'clients']" empty-label="Aucun client ne correspond à la recherche.">
+        <template #toolbar>
+          <AppSearchField v-model="query" placeholder="Rechercher un nom, une ville, un email…" class="max-w-[460px]"/>
+        </template>
+        <template #cell-name="{ row }">
+          <div class="flex items-center gap-3">
+            <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-sable font-serif text-[15px]">
+              {{ initials(row.name) }}
+            </div>
+            <div class="flex min-w-0 flex-col">
+              <span class="font-medium">{{ row.civility }} {{ row.name }}</span>
+              <span class="text-[13px] text-taupe lg:hidden">{{ row.city }}</span>
+            </div>
+          </div>
+        </template>
+        <template #cell-city="{ row }">
+          <div class="flex flex-col">
+            <span>{{ row.postCode }} {{ row.city }}</span>
+            <span class="text-[13px] text-taupe">{{ row.subdivision }}, {{ row.country }}</span>
+          </div>
+        </template>
+        <template #cell-phone1="{ row }">
+          <div class="flex flex-col tabular-nums">
+            <span>{{ formatPhone(row.phone1) }}</span>
+            <span v-if="row.phone2 && row.phone2 !== row.phone1" class="text-[13px] text-taupe">{{ formatPhone(row.phone2) }}</span>
+          </div>
+        </template>
+        <template #cell-email="{ row }">
+          <a :href="`mailto:${row.email}`" class="text-brun hover:text-bordeaux">{{ row.email }}</a>
+        </template>
+        <template #actions="{ row }">
+          <AppIconButton icon="pencil" label="Modifier" @click="openModal(row)"/>
+          <AppIconButton icon="trash" label="Supprimer" tone="danger" @click="deleteClient(row.id)"/>
+        </template>
+      </AppTable>
+    </AppPage>
+
+    <AppModal :is-visible="modalCreationClient" :title="isEditing ? 'Modifier le client' : 'Nouveau client'"
+              @close-modal="closeModal" @save-modal="saveClient">
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4 sm:flex-row">
+          <AppField label="Civilité" class="sm:max-w-40">
+            <BaseSelect v-model="modalClientDetails.civility" placeholder="Choisir…">
+              <BaseSelectItem value="M.">Monsieur</BaseSelectItem>
+              <BaseSelectItem value="Mme.">Madame</BaseSelectItem>
+              <BaseSelectItem value="Autre">Autre</BaseSelectItem>
+            </BaseSelect>
+          </AppField>
+          <AppField label="Nom complet" for="fullName">
+            <BaseInput id="fullName" v-model="modalClientDetails.name" placeholder="Jean Durand" rounded="md"/>
+          </AppField>
         </div>
-        <span class="w-full h-0.5 bg-gray-300 mb-5"></span>
-        <div class="flex flex-col w-full gap-3 overflow-y-auto flex-1">
-          <div v-for="(user, key) in users" :key="key" class="flex flex-col w-full gap-3">
-            <div class="flex flex-row w-full gap-2 items-center justify-between pr-2">
-              <div class="flex flex-row items-center gap-2">
-                <div class="flex flex-col">
-                  <h3 class="text-black font-semibold">{{ user.civility + " " + user.name }}</h3>
-                  <h4 class="text-gray-500">
-                    {{ user.postCode + ", " + user.city + ", " + user.subdivision + ", " + user.country }}</h4>
-                </div>
-              </div>
-              <div class="flex flex-row gap-4 items-center">
-                <div class="flex-col text-align text-right">
-                  <h3 class="text-black font-semibold">
-                    {{ "phone 1 : " + user.phone1 + " or phone 2 : " + user.phone2 }}</h3>
-                  <h3 class="text-gray-500">{{ user.email }}</h3>
-                </div>
-                <BaseButton @click="openModal(user)">
-                  <Icon name="ic:baseline-edit" class="size-5"/>
-                </BaseButton>
-                <BaseButton @click="deleteClient(user.id)">
-                  <Icon name="ic:round-delete" class="size-5 bg-red-500"/>
-                </BaseButton>
-              </div>
-            </div>
-            <div class="w-full h-px bg-gray-300"
-                 :class="{ 'hidden': key === users.length-1, 'block' : key !== users.length-1 }"></div>
-          </div>
+        <div class="flex flex-col gap-4 sm:flex-row">
+          <AppField label="Téléphone 1" for="phone1">
+            <BaseInput id="phone1" v-model="modalClientDetails.phone1" placeholder="01 23 45 67 89" rounded="md"/>
+          </AppField>
+          <AppField label="Téléphone 2" for="phone2">
+            <BaseInput id="phone2" v-model="modalClientDetails.phone2" placeholder="06 12 34 56 78" rounded="md"/>
+          </AppField>
         </div>
-      </BaseCard>
-    </div>
-    <AppModal :is-visible="modalCreationClient" @close-modal="closeModal" @save-modal="saveClient">
-      <div class="flex flex-col w-full h-140 gap-4 overflow-auto px-4 py-2">
-        <h2 class="text-black font-bold text-2xl mb-4">Créer un nouveau client</h2>
-        <div class="flex flex-col gap-4 text-black">
-          <div class="flex flex-row w-full gap-2 items-center">
-            <div class="flex flex-col w-fit">
-              <label for="civility">Civilité :</label>
-              <BaseSelect v-model="modalClientDetails.civility" placeholder="Select a value...">
-                <BaseSelectItem value="M.">
-                  Monsieur
-                </BaseSelectItem>
-                <BaseSelectItem value="Mme.">
-                  Madame
-                </BaseSelectItem>
-                <BaseSelectItem value="Autre">
-                  Autre
-                </BaseSelectItem>
-              </BaseSelect>
-            </div>
-            <div class="flex flex-col w-full">
-              <label for="fullName">Nom Complet :</label>
-              <BaseInput placeholder="Jean Durand" rounded="md" id="fullName" v-model="modalClientDetails.name"/>
-            </div>
-          </div>
-          <div class="flex flex-row w-full gap-2 items-center">
-            <div class="flex flex-col w-full gap-2">
-              <label for="phone1">Téléphone 1 :</label>
-              <BaseInput placeholder="01 23 45 67 89" rounded="md" id="phone1" v-model="modalClientDetails.phone1"/>
-            </div>
-            <div class="flex flex-col w-full gap-2">
-              <label for="phone2">Téléphone 2 :</label>
-              <BaseInput placeholder="98 76 54 32 10" rounded="md" id="phone2" v-model="modalClientDetails.phone2"/>
-            </div>
-          </div>
-          <label for="email">Email :</label>
-          <BaseInput placeholder="Email" rounded="md" id="email" v-model="modalClientDetails.email"/>
-          <div class="flex flex-row w-full gap-2 items-center">
-            <div class="flex flex-col gap-2">
-              <label for="postalCode">Code Postal :</label>
-              <BaseInput placeholder="Code Postal" rounded="md" id="postalCode"
-                         v-model="modalClientDetails.postCode"/>
-            </div>
-            <div class="flex flex-col w-full gap-2">
-              <label for="city">Ville :</label>
-              <BaseInput placeholder="Ville" rounded="md" id="city" v-model="modalClientDetails.city"/>
-            </div>
-          </div>
-          <div class="flex flex-row w-full gap-2">
-            <div class="flex flex-col gap-2 w-fit">
-              <label for="subdivision">Subdivision :</label>
-              <BaseInput placeholder="Région/Subdivision" rounded="md" id="subdivision"
-                         v-model="modalClientDetails.subdivision"/>
-            </div>
-            <div class="flex flex-col gap-2 w-full">
-              <label for="country">Pays :</label>
-              <BaseInput placeholder="Pays" rounded="md" id="country" v-model="modalClientDetails.country"/>
-            </div>
-          </div>
+        <AppField label="Email" for="email">
+          <BaseInput id="email" v-model="modalClientDetails.email" placeholder="jean.durand@mail.com" rounded="md"/>
+        </AppField>
+        <div class="flex flex-col gap-4 sm:flex-row">
+          <AppField label="Code postal" for="postalCode" class="sm:max-w-40">
+            <BaseInput id="postalCode" v-model="modalClientDetails.postCode" placeholder="75001" rounded="md"/>
+          </AppField>
+          <AppField label="Ville" for="city">
+            <BaseInput id="city" v-model="modalClientDetails.city" placeholder="Paris" rounded="md"/>
+          </AppField>
+        </div>
+        <div class="flex flex-col gap-4 sm:flex-row">
+          <AppField label="Région" for="subdivision">
+            <BaseInput id="subdivision" v-model="modalClientDetails.subdivision" placeholder="Île-de-France" rounded="md"/>
+          </AppField>
+          <AppField label="Pays" for="country">
+            <BaseInput id="country" v-model="modalClientDetails.country" placeholder="France" rounded="md"/>
+          </AppField>
         </div>
       </div>
     </AppModal>
   </AppOverlay>
 </template>
-
-<style scoped>
-
-</style>

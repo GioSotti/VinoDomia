@@ -1,24 +1,19 @@
 <script setup lang="ts">
 // Structure commune des pages : sidebar à gauche, header en haut, contenu de la page dans le slot.
-const sideBarIsOpen = ref(true);
+const menuOpen = ref(false)
 
-defineProps<{
-  focusPage?: number
-  focusUnderPage?: number
-}>()
-
+const route = useRoute()
+watch(() => route.fullPath, () => {
+  menuOpen.value = false
+})
 </script>
 
 <template>
-  <div class="flex flex-row bg-background-grey">
-    <AppSidebar :focusPage=focusPage v-model:is-burger-menu="sideBarIsOpen" :focus-under-page="focusUnderPage"/>
-    <div class="flex flex-col w-full">
-      <AppHeader v-model:is-burger-menu="sideBarIsOpen"/>
-      <slot></slot>
-    </div>
+  <div class="flex min-h-screen bg-ivoire font-sans text-encre">
+    <AppSidebar :open="menuOpen" @close="menuOpen = false"/>
+    <main class="flex min-w-0 flex-1 flex-col">
+      <AppHeader @open-menu="menuOpen = true"/>
+      <slot/>
+    </main>
   </div>
 </template>
-
-<style scoped>
-
-</style>

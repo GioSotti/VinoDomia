@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { TERMS_VERSION } from '#shared/utils/legal'
 
 const findUnique = vi.fn()
 const create = vi.fn()
@@ -48,7 +49,7 @@ describe('auth.service', () => {
     it('refuse un email déjà utilisé', async () => {
       findUnique.mockResolvedValue({ id: 1 })
 
-      const result = await register({ email: 'a@test.dev', password: 'pwd', name: 'A' })
+      const result = await register({ email: 'a@test.dev', password: 'pwd', name: 'A', acceptTerms: true })
 
       expect(result).toEqual({ success: false, reason: 'USER_ALREADY_EXISTS' })
       expect(create).not.toHaveBeenCalled()
@@ -58,12 +59,23 @@ describe('auth.service', () => {
       findUnique.mockResolvedValue(null)
       create.mockImplementation(async ({ data }) => ({ id: 2, ...data }))
 
-      const result = await register({ email: 'b@test.dev', password: 'pwd', name: 'B' })
+      const result = await register({ email: 'b@test.dev', password: 'pwd', name: 'B', acceptTerms: true })
 
       expect(result).toEqual({ success: true, token: 'fake-token' })
       const saved = create.mock.calls[0]![0].data
       expect(saved.password).not.toBe('pwd')
       expect(await bcrypt.compare('pwd', saved.password)).toBe(true)
+    })
+
+    it('enregistre la date et la version des conditions acceptées', async () => {
+      findUnique.mockResolvedValue(null)
+      create.mockImplementation(async ({ data }) => ({ id: 3, ...data }))
+
+      await register({ email: 'c@test.dev', password: 'pwd', name: 'C', acceptTerms: true })
+
+      const saved = create.mock.calls[0]![0].data
+      expect(saved.termsAcceptedAt).toBeInstanceOf(Date)
+      expect(saved.termsVersion).toBe(TERMS_VERSION)
     })
   })
 })

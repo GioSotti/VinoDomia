@@ -14,6 +14,7 @@ export type LoginPayload = {
 
 export type RegisterPayload = LoginPayload & {
   name: string
+  acceptTerms: boolean
 }
 
 export type JwtPayload = {

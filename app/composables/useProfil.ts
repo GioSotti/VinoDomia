@@ -1,10 +1,16 @@
-import type {Profil} from '~/utils/navigation'
+import {DEFAULT_ROLE, profilFromRole, roleLabel} from '#shared/utils/roles'
 
 export function useProfil() {
-  const profil = useCookie<Profil>('vd-profil', {
-    default: () => 'admin',
-    sameSite: 'lax',
-  })
+  const role = useCookie<number | null>('vd-role', {default: () => null, sameSite: 'lax'})
+  const {getPayload} = useAuth()
 
-  return {profil}
+  if (import.meta.client) {
+    const fromToken = getPayload()?.role
+    if (fromToken !== undefined && fromToken !== role.value) role.value = fromToken
+  }
+
+  const profil = computed(() => profilFromRole(role.value ?? DEFAULT_ROLE) ?? 'admin')
+  const label = computed(() => roleLabel(role.value ?? DEFAULT_ROLE))
+
+  return {role, profil, label}
 }

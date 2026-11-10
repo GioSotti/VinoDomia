@@ -14,3 +14,11 @@ function getSecret(): string {
 export function signToken(payload: Omit<JwtPayload, 'exp'>): string {
   return jwt.sign(payload, getSecret(), { expiresIn: TOKEN_TTL })
 }
+
+export function verifyToken(token: string): JwtPayload | null {
+  try {
+    return jwt.verify(token, getSecret()) as JwtPayload
+  } catch {
+    return null
+  }
+}

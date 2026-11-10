@@ -122,9 +122,9 @@
           <td>24 heures au plus (expiration du jeton) ou jusqu'à la déconnexion</td>
         </tr>
         <tr>
-          <td>vd-profil</td>
+          <td>vd-role</td>
           <td>Cookie</td>
-          <td>Mémoriser le profil d'affichage choisi (gérant, vendeur, vigneron)</td>
+          <td>Afficher l'espace correspondant à votre rôle (gérant, vendeur, vigneron)</td>
           <td>Session du navigateur</td>
         </tr>
       </tbody>

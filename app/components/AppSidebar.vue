@@ -5,11 +5,19 @@ defineProps<{ open: boolean }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
 
 const route = useRoute()
-const {profil} = useProfil()
+const {profil, label: roleName} = useProfil()
 const {clearToken} = useAuth()
+const {account, loadAccount} = useAccount()
+
+onMounted(() => {
+  loadAccount().catch(() => {})
+})
 
 const sections = computed(() => NAV[profil.value])
 const who = computed(() => WHO[profil.value])
+const displayName = computed(() => account.value?.name || who.value.name)
+const avatar = computed(() => account.value?.name ? initials(account.value.name) : who.value.initial)
+const settingsActive = computed(() => route.path === '/parametres')
 
 const isActive = (item: NavItem) => !!item.to && route.path === item.to
 
@@ -20,6 +28,7 @@ function badgeClass(item: NavItem) {
 
 function logout() {
   clearToken()
+  account.value = null
   navigateTo('/login')
 }
 </script>
@@ -71,16 +80,21 @@ function logout() {
       </div>
     </div>
 
-    <div class="mt-auto flex items-center gap-3 rounded-xl border border-lin bg-ivoire p-3">
-      <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-encre font-serif text-base text-ivoire">
-        {{ who.initial }}
-      </div>
-      <div class="flex min-w-0 flex-1 flex-col">
-        <p class="m-0 truncate text-sm font-medium">{{ who.name }}</p>
-        <p class="m-0 truncate text-[13px] text-taupe">{{ who.sub }}</p>
-      </div>
+    <div class="mt-auto flex items-center gap-1 rounded-xl border p-1.5 transition-colors"
+         :class="settingsActive ? 'border-encre bg-papier' : 'border-lin bg-ivoire'">
+      <NuxtLink to="/parametres" :aria-current="settingsActive ? 'page' : undefined"
+                class="flex min-w-0 flex-1 items-center gap-3 rounded-[10px] p-1.5 text-encre no-underline hover:bg-sable/60"
+                @click="emit('close')">
+        <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-encre font-serif text-base text-ivoire">
+          {{ avatar }}
+        </div>
+        <div class="flex min-w-0 flex-1 flex-col">
+          <p class="m-0 truncate text-sm font-medium">{{ displayName }}</p>
+          <p class="m-0 truncate text-[13px] text-taupe">{{ roleName }}</p>
+        </div>
+      </NuxtLink>
       <button type="button" aria-label="Se déconnecter" title="Se déconnecter"
-              class="flex size-9 shrink-0 items-center justify-center rounded-[10px] text-taupe hover:bg-sable hover:text-encre"
+              class="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-[10px] border-0 bg-transparent text-taupe hover:bg-sable hover:text-encre"
               @click="logout">
         <AppIcon name="logout"/>
       </button>

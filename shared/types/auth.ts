@@ -20,5 +20,6 @@ export type RegisterPayload = LoginPayload & {
 export type JwtPayload = {
   id: number
   email: string
+  role: number
   exp?: number
 }

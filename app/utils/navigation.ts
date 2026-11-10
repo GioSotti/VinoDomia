@@ -1,4 +1,6 @@
-export type Profil = 'admin' | 'vendeur' | 'vigneron'
+import type {Profil} from '#shared/utils/roles'
+
+export type {Profil}
 
 export type NavItem = {
   label: string
@@ -42,6 +44,9 @@ export const ICONS = {
   eye: 'M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0 M9 12a3 3 0 1 0 6 0a3 3 0 1 0-6 0',
   eyeOff: 'M10.73 5.08A10.43 10.43 0 0 1 12 5c4.64 0 8.6 2.9 10 7a10.75 10.75 0 0 1-1.44 2.49 M14.08 14.16a3 3 0 0 1-4.24-4.24 M17.48 17.5A10.75 10.75 0 0 1 2 12a10.75 10.75 0 0 1 4.45-5.5 M2 2l20 20',
   alert: 'M12 22a10 10 0 1 0 0-20a10 10 0 1 0 0 20 M12 8v4 M12 16h.01',
+  settings: 'M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2Z M9 12a3 3 0 1 0 6 0a3 3 0 1 0-6 0',
+  user: 'M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2 M8 7a4 4 0 1 0 8 0a4 4 0 1 0-8 0',
+  lock: 'M5 11h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z M7 11V7a5 5 0 0 1 10 0v4',
 } as const
 
 export type IconName = keyof typeof ICONS
@@ -71,7 +76,7 @@ export const NAV: Record<Profil, NavSection[]> = {
     {title: 'Relation', items: [{label: 'Clients', icon: 'users', to: '/clients'}]},
     {
       title: 'Administration', items: [
-        {label: 'Équipe & accès', icon: 'shield'},
+        {label: 'Utilisateurs', icon: 'shield', to: '/utilisateurs'},
         {label: 'Maintenance', icon: 'wrench', to: '/maintenance'},
       ]
     },
@@ -109,12 +114,6 @@ export const NAV: Record<Profil, NavSection[]> = {
     {title: 'Compte', items: [{label: 'Profil du domaine', icon: 'home'}]},
   ],
 }
-
-export const PROFILS: { id: Profil, label: string }[] = [
-  {id: 'admin', label: 'Gérant'},
-  {id: 'vendeur', label: 'Vendeur'},
-  {id: 'vigneron', label: 'Vigneron'},
-]
 
 export const WHO: Record<Profil, { initial: string, name: string, sub: string }> = {
   admin: {initial: 'G', name: 'Gérant de la cave', sub: 'Accès complet'},

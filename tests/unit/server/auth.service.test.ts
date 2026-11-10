@@ -13,6 +13,7 @@ vi.mock('../../../server/utils/jwt', () => ({
 }))
 
 const { login, register } = await import('../../../server/services/auth.service')
+const { signToken } = await import('../../../server/utils/jwt')
 
 describe('auth.service', () => {
   beforeEach(() => {
@@ -42,6 +43,14 @@ describe('auth.service', () => {
       const result = await login({ email: 'a@test.dev', password: 'good' })
 
       expect(result).toEqual({ success: true, token: 'fake-token' })
+    })
+
+    it('met le rôle de l\'utilisateur dans le token', async () => {
+      findUnique.mockResolvedValue({ id: 1, email: 'a@test.dev', role: 1, password: await bcrypt.hash('good', 4) })
+
+      await login({ email: 'a@test.dev', password: 'good' })
+
+      expect(signToken).toHaveBeenCalledWith({ id: 1, email: 'a@test.dev', role: 1 })
     })
   })
 

@@ -1,0 +1,56 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+      timezone: Europe/Paris
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore(deps)
+      prefix-development: chore(deps-dev)
+    labels: [dependencies]
+    groups:
+      nuxt:
+        patterns: ["nuxt", "@nuxt/*", "vue", "vue-router"]
+      prisma:
+        patterns: ["prisma", "@prisma/*"]
+      minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: typescript
+        versions: [">=7"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+      timezone: Europe/Paris
+    commit-message:
+      prefix: chore(ci)
+    labels: [dependencies]
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: docker
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+      timezone: Europe/Paris
+    commit-message:
+      prefix: chore(docker)
+    labels: [dependencies]
+    ignore:
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]

@@ -34,6 +34,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           <slot name="footer"/>
           <AppButton variant="ghost" @click="emit('close-modal')">{{ cancelLabel }}</AppButton>
           <AppButton v-if="!hideSave" @click="emit('save-modal')">{{ saveLabel }}</AppButton>
+          <slot name="primary"/>
         </div>
       </div>
     </div>

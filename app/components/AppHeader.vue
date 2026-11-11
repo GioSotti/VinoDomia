@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {PROFILS, SEARCH_HINT} from '~/utils/navigation'
+import {SEARCH_HINT} from '~/utils/navigation'
 
 const emit = defineEmits<{ (e: 'open-menu'): void }>()
 
@@ -24,16 +24,6 @@ const searchHint = computed(() => SEARCH_HINT[profil.value])
     </div>
 
     <div class="ml-auto flex flex-wrap items-center gap-3">
-      <div role="group" aria-label="Aperçu du profil" class="flex gap-1 rounded-xl bg-sable p-1">
-        <button v-for="p in PROFILS" :key="p.id" type="button"
-                :aria-pressed="profil === p.id"
-                class="h-10 cursor-pointer rounded-[9px] border-0 px-3.5 text-sm font-medium transition-colors"
-                :class="profil === p.id ? 'bg-papier text-encre' : 'bg-transparent text-taupe-fonce hover:text-encre'"
-                @click="profil = p.id">
-          {{ p.label }}
-        </button>
-      </div>
-
       <button type="button" aria-label="Notifications"
               class="flex size-11 cursor-pointer items-center justify-center rounded-[10px] border-0 bg-transparent text-encre hover:bg-sable">
         <AppIcon name="bell" :size="20"/>

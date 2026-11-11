@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt'
 import { prisma } from '../utils/prisma'
 import { signToken } from '../utils/jwt'
 import { TERMS_VERSION } from '#shared/utils/legal'
+import { DEFAULT_ROLE } from '#shared/utils/roles'
 import type { LoginPayload, RegisterPayload } from '#shared/types/auth'
 
 const SALT_ROUNDS = 10
@@ -21,7 +22,7 @@ export async function login({ email, password }: LoginPayload): Promise<AuthResu
     return { success: false, reason: 'INVALID_CREDENTIALS' }
   }
 
-  return { success: true, token: signToken({ id: user.id, email: user.email }) }
+  return { success: true, token: signToken({ id: user.id, email: user.email, role: user.role }) }
 }
 
 export async function register({ email, password, name }: RegisterPayload): Promise<AuthResult> {
@@ -35,11 +36,11 @@ export async function register({ email, password, name }: RegisterPayload): Prom
       email,
       name,
       password: await bcrypt.hash(password, SALT_ROUNDS),
-      role: 0,
+      role: DEFAULT_ROLE,
       termsAcceptedAt: new Date(),
       termsVersion: TERMS_VERSION,
     },
   })
 
-  return { success: true, token: signToken({ id: user.id, email: user.email }) }
+  return { success: true, token: signToken({ id: user.id, email: user.email, role: user.role }) }
 }
